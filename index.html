@@ -4,263 +4,127 @@
   <meta charset="utf-8" />
   <title>MCQ Generator → DOCX</title>
 
-  <!-- html-docx-js (GitHub Pages compatible) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.js"></script>
+  <!-- Working DOCX libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip-utils.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.29.2/docxtemplater.js"></script>
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body{font-family: Arial, Helvetica, sans-serif; margin:12px; color:#111}
-    h2{margin:6px 0 12px}
+    body{font-family: Arial; margin:12px}
     .wrap{display:flex; gap:12px; flex-wrap:wrap}
-    .col{background:#fff;border:1px solid #ddd;padding:12px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
-    .left{flex:1 1 420px; min-width:320px}
-    .right{flex:1 1 420px; min-width:280px; max-height:80vh; overflow:auto}
-    label{display:block;margin:8px 0 4px;font-weight:600}
-    input[type="text"], textarea, select, input[type="number"]{
-      width:100%; padding:8px; box-sizing:border-box; border:1px solid #ccc; border-radius:4px;
-      font-family:monospace;
-    }
-    textarea{min-height:80px; font-family:monospace}
-    .row{display:flex; gap:8px}
-    .row > * {flex:1}
-    button{padding:10px 14px; margin-top:10px; cursor:pointer; border-radius:6px; border:0; background:#0066cc; color:#fff}
-    .muted{color:#666; font-size:13px}
-    .question-card{border:1px dashed #ccc;padding:8px;margin:8px 0;border-radius:6px;background:#fbfbfb}
-    .small{font-size:13px}
-    .inline{display:inline-block;margin-left:8px}
-    @media(max-width:800px){ .wrap{flex-direction:column} }
+    .col{background:#fff;border:1px solid #ddd;padding:12px;border-radius:6px}
+    input,textarea,select{width:100%;padding:8px;margin:4px 0}
+    button{padding:10px 16px; margin-top:10px; background:#0066cc; color:white; border:0; border-radius:6px}
+    .right{max-height:80vh; overflow:auto}
   </style>
 </head>
 <body>
 
-<h2>MCQ Generator → DOCX</h2>
-<p class="muted">Left में fill करो → Right में preview → Add → फिर Export DOCX। (Question no auto-increment)</p>
+<h2>MCQ Generator → DOCX (Working Without Errors)</h2>
 
 <div class="wrap">
-  <div class="col left">
-    <label>Module</label>
-    <input type="text" id="module" placeholder="उदाह. Hindi, Math..." />
 
-    <div class="row">
-      <div>
-        <label>Question no (auto)</label>
-        <input type="number" id="qno" readonly />
-      </div>
-      <div>
-        <label>Type</label>
-        <input type="text" id="type" value="mcq" readonly />
-      </div>
-    </div>
+  <!-- LEFT SIDE -->
+  <div class="col" style="flex:1;min-width:320px">
+    <label>Module</label>
+    <input id="module">
 
     <label>Question</label>
-    <textarea id="question" placeholder="यहाँ प्रश्न लिखें..."></textarea>
+    <textarea id="question"></textarea>
 
     <label>Options</label>
-    <input type="text" id="optA" placeholder="Option A" />
-    <input type="text" id="optB" placeholder="Option B" style="margin-top:6px"/>
-    <input type="text" id="optC" placeholder="Option C" style="margin-top:6px"/>
-    <input type="text" id="optD" placeholder="Option D" style="margin-top:6px"/>
+    <input id="A" placeholder="Option A">
+    <input id="B" placeholder="Option B">
+    <input id="C" placeholder="Option C">
+    <input id="D" placeholder="Option D">
 
-    <div class="row">
-      <div>
-        <label>Answer (A/B/C/D)</label>
-        <input type="text" id="answer" placeholder="A" maxlength="1" />
-      </div>
-      <div>
-        <label>Language</label>
-        <select id="language">
-          <option value="hi">hi</option>
-          <option value="en">en</option>
-        </select>
-      </div>
-    </div>
+    <label>Answer (A/B/C/D)</label>
+    <input id="answer">
 
     <label>Solution</label>
-    <textarea id="solution" placeholder="Solution / Explanation"></textarea>
+    <textarea id="solution"></textarea>
 
-    <div class="row">
-      <div>
-        <label>Positive Marks</label>
-        <input type="number" id="pm" step="0.1" value="1" />
-      </div>
-      <div>
-        <label>Negative Marks</label>
-        <input type="number" id="nm" step="0.1" value="0.0" />
-      </div>
-    </div>
+    <label>Positive Marks</label>
+    <input id="pm" value="1">
 
-    <div style="margin-top:10px">
-      <button id="addBtn">Add Question</button>
-      <button id="clearBtn" style="background:#999; margin-left:8px">Clear Fields</button>
-    </div>
+    <label>Negative Marks</label>
+    <input id="nm" value="0">
 
-    <hr style="margin:14px 0">
+    <label>Language</label>
+    <select id="language">
+      <option value="hi">hi</option>
+      <option value="en">en</option>
+    </select>
 
-    <div>
-      <button id="exportDoc" style="background:#0b7a3e">Export DOCX (All Questions)</button>
-      <span class="inline small muted"> → DOCX format follows the required lines (Module, questionno, Question, Type, Options, answer, Solution, Positive Marks, Negative Marks, language)</span>
-    </div>
-
-    <div style="margin-top:12px" class="muted small">
-      Tip: अगर आप bulk JSON import करना चाहते हो तो मुझे बताओ, मैं import button add कर दूँगा।
-    </div>
+    <button onclick="addQ()">Add Question</button>
+    <button onclick="exportDOCX()" style="background:#0b7a3e">Export DOCX</button>
   </div>
 
-  <div class="col right">
-    <h3>Preview (Added Questions)</h3>
-    <div id="listArea" class="small"></div>
-    <div style="margin-top:10px">
-      <button id="removeLast" style="background:#c0392b">Remove Last</button>
-      <button id="resetAll" style="background:#7f8c8d; margin-left:8px">Clear All</button>
-    </div>
+  <!-- RIGHT SIDE -->
+  <div class="col right" style="flex:1;min-width:320px">
+    <h3>Preview</h3>
+    <div id="preview"></div>
   </div>
+
 </div>
 
 <script>
-  // state
-  let questions = [];
-  let nextQno = 1;
+let arr = [];
+let qno = 1;
 
-  // init
-  document.getElementById('qno').value = nextQno;
-  document.getElementById('addBtn').addEventListener('click', addQuestion);
-  document.getElementById('clearBtn').addEventListener('click', clearFields);
-  document.getElementById('exportDoc').addEventListener('click', exportDocx);
-  document.getElementById('removeLast').addEventListener('click', removeLast);
-  document.getElementById('resetAll').addEventListener('click', resetAll);
+function addQ(){
+  const q = {
+    section: document.getElementById("module").value,
+    qno,
+    question: document.getElementById("question").value,
+    type: "mcq",
+    A: document.getElementById("A").value,
+    B: document.getElementById("B").value,
+    C: document.getElementById("C").value,
+    D: document.getElementById("D").value,
+    answer: document.getElementById("answer").value,
+    solution: document.getElementById("solution").value,
+    pm: document.getElementById("pm").value,
+    nm: document.getElementById("nm").value,
+    language: document.getElementById("language").value
+  };
 
-  function getField(id){ return document.getElementById(id).value.trim(); }
+  arr.push(q);
+  qno++;
 
-  function addQuestion(){
-    const module = getField('module') || 'General';
-    const qno = Number(document.getElementById('qno').value);
-    const type = getField('type') || 'mcq';
-    const question = getField('question');
-    const A = getField('optA');
-    const B = getField('optB');
-    const C = getField('optC');
-    const D = getField('optD');
-    const answer = getField('answer').toUpperCase();
-    const solution = getField('solution');
-    const pm = getField('pm') || '1';
-    const nm = getField('nm') || '0';
-    const language = getField('language');
+  render();
+}
 
-    if(!question){ alert('Question खाली नहीं छोड़ो'); return; }
-    if(!A || !B || !C || !D){ if(!confirm('कुछ options खाली हैं। Continue?')) return; }
-    if(!['A','B','C','D'].includes(answer)){ if(!confirm('Answer A/B/C/D नहीं दिया है। Continue without answer?')){} }
+function render(){
+  let html = "";
+  arr.forEach(q=>{
+    html += `<p><b>${q.qno})</b> ${q.question}</p>`;
+  });
+  document.getElementById("preview").innerHTML = html;
+}
 
-    const q = {
-      module, qno, type, question,
-      options: {A,B,C,D},
-      answer, solution, pm, nm, language
-    };
-    questions.push(q);
-    nextQno++;
-    document.getElementById('qno').value = nextQno;
-    renderList();
-    clearFields(false);
-  }
+function exportDOCX(){
+  PizZipUtils.getBinaryContent("MCQ_Template.docx", function(error, content){
+    if (error){ alert("Template नहीं मिली!"); return; }
 
-  function clearFields(full=true){
-    if(full){
-      document.getElementById('module').value='';
-    }
-    document.getElementById('question').value='';
-    document.getElementById('optA').value='';
-    document.getElementById('optB').value='';
-    document.getElementById('optC').value='';
-    document.getElementById('optD').value='';
-    document.getElementById('answer').value='';
-    document.getElementById('solution').value='';
-    document.getElementById('pm').value='1';
-    document.getElementById('nm').value='0.0';
-    // language keep as selected
-  }
+    const zip = new PizZip(content);
+    const doc = new window.docxtemplater(zip);
 
-  function renderList(){
-    const area = document.getElementById('listArea');
-    if(questions.length===0){ area.innerHTML = '<div class="muted">कोई प्रश्न नहीं जोड़ा गया।</div>'; return; }
-    area.innerHTML = '';
-    questions.forEach((q, idx) => {
-      const div = document.createElement('div');
-      div.className = 'question-card';
-      div.innerHTML = `<div><b>${q.qno}. [${q.module}]</b> <span class="muted small">(${q.type}, lang:${q.language})</span></div>
-                       <div style="margin-top:6px"><b>Q:</b> ${escapeHtml(q.question)}</div>
-                       <div style="margin-top:6px"><b>Options:</b>
-                        <div>A. ${escapeHtml(q.options.A)}</div>
-                        <div>B. ${escapeHtml(q.options.B)}</div>
-                        <div>C. ${escapeHtml(q.options.C)}</div>
-                        <div>D. ${escapeHtml(q.options.D)}</div>
-                       </div>
-                       <div style="margin-top:6px"><b>Answer:</b> ${escapeHtml(q.answer)} &nbsp; <b>+:</b>${q.pm} <b>-:</b>${q.nm}</div>
-                       <div style="margin-top:6px"><b>Solution:</b> ${escapeHtml(q.solution)}</div>`;
-      area.appendChild(div);
-    });
-  }
+    doc.setData({ questions: arr });
 
-  function removeLast(){
-    if(questions.length===0) return alert('कोई प्रश्न नहीं हटाने के लिए।');
-    if(!confirm('सबसे आखिरी प्रश्न हटाना है?')) return;
-    questions.pop();
-    nextQno = questions.length ? (questions[questions.length-1].qno + 1) : 1;
-    document.getElementById('qno').value = nextQno;
-    renderList();
-  }
+    try { doc.render(); }
+    catch(e){ alert(e.message); }
 
-  function resetAll(){
-    if(!confirm('सारे प्रश्न हटाने हैं?')) return;
-    questions = [];
-    nextQno = 1;
-    document.getElementById('qno').value = nextQno;
-    renderList();
-  }
+    const out = doc.getZip().generate({ type: "blob" });
 
-  function escapeHtml(s){
-    if(!s) return '';
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-  }
-
-  function exportDocx(){
-    if(questions.length===0){ alert('पहले कम से कम एक प्रश्न जोड़ो'); return; }
-
-    // Build HTML content for DOCX with requested exact labels
-    let html = '<html><body style="font-family:Times New Roman; font-size:12pt;">';
-
-    questions.forEach(q => {
-      html += `<p>### section: ${escapeHtml(q.module)}</p>`;
-      html += `<p># questionno: ${q.qno}</p>`;
-      html += `<p># Question: ${escapeHtml(q.question)}</p>`;
-      html += `<p># Type: ${escapeHtml(q.type)}</p>`;
-      html += `<p># Options</p>`;
-      html += `<p>###A: ${escapeHtml(q.options.A)}</p>`;
-      html += `<p>###B: ${escapeHtml(q.options.B)}</p>`;
-      html += `<p>###C: ${escapeHtml(q.options.C)}</p>`;
-      html += `<p>###D: ${escapeHtml(q.options.D)}</p>`;
-      html += `<p># answer: ${escapeHtml(q.answer)}</p>`;
-      html += `<p># Solution: ${escapeHtml(q.solution)}</p>`;
-      html += `<p># Positive Marks: ${escapeHtml(String(q.pm))}</p>`;
-      html += `<p># Negative Marks: ${escapeHtml(String(q.nm))}</p>`;
-      html += `<p># language: ${escapeHtml(q.language)}</p>`;
-      html += '<hr />';
-    });
-
-    html += '</body></html>';
-
-    try {
-      const blob = window.htmlDocx.asBlob(html);
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'mcq_export.docx';
-      link.click();
-      setTimeout(()=> URL.revokeObjectURL(link.href), 3000);
-    } catch (err){
-      alert('DOCX बनाते समय error: ' + err.message);
-    }
-  }
-
-  // initial render
-  renderList();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(out);
+    a.download = "MCQ_Export.docx";
+    a.click();
+  });
+}
 </script>
 
 </body>
