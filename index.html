@@ -2,87 +2,73 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>JSON → PDF + DOCX Generator</title>
+  <title>MCQ JSON → DOCX Generator</title>
 
-  <!-- jsPDF for PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <!-- html-docx-js for DOCX -->
-  <script src="https://unpkg.com/html-docx-js/dist/html-docx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.1/html-docx.js"></script>
 
   <style>
     body { font-family: Arial; margin: 20px; }
-    textarea { width: 100%; height: 260px; font-family: monospace; }
-    button { padding: 10px 16px; margin: 8px 4px; }
-    #preview { white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; display: none; }
+    textarea { width: 100%; height: 300px; font-family: monospace; }
+    button { padding: 10px 16px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
-<h2>JSON → PDF & DOCX Converter (Working)</h2>
+<h2>MCQ JSON → DOCX Converter</h2>
 
-<textarea id="jsonInput" placeholder="यहाँ JSON डालें..."></textarea>
-
-<div>
-  <button onclick="showPreview()">Preview</button>
-  <button onclick="makePDF()">Generate PDF</button>
-  <button onclick="makeDOCX()">Generate DOCX</button>
-</div>
-
-<div id="preview"></div>
+<textarea id="jsonInput" placeholder="यहाँ अपना JSON डालें..."></textarea>
+<br>
+<button onclick="generateDocx()">Generate DOCX</button>
 
 <script>
-function safeFormat(txt){
-  try{
-    return JSON.stringify(JSON.parse(txt), null, 2);
-  }catch(e){
-    return txt;
-  }
-}
+function generateDocx() {
+    let raw = document.getElementById("jsonInput").value;
 
-function showPreview(){
-  let txt = safeFormat(document.getElementById("jsonInput").value);
-  let box = document.getElementById("preview");
-  box.style.display = "block";
-  box.textContent = txt;
-}
-
-function makePDF(){
-  const { jsPDF } = window.jspdf;
-  let text = safeFormat(document.getElementById("jsonInput").value);
-
-  const doc = new jsPDF({ unit: "pt", format: "a4" });
-  const margin = 40;
-  const width = doc.internal.pageSize.getWidth() - margin * 2;
-
-  doc.setFont("Courier");
-  doc.setFontSize(11);
-
-  const lines = doc.splitTextToSize(text, width);
-  let y = margin;
-
-  lines.forEach(line => {
-    if (y > 800) {
-      doc.addPage();
-      y = margin;
+    let data;
+    try {
+        data = JSON.parse(raw);
+    } catch (e) {
+        alert("Invalid JSON");
+        return;
     }
-    doc.text(line, margin, y);
-    y += 14;
-  });
 
-  doc.save("json_output.pdf");
-}
+    let html = "<html><body>";
 
-function makeDOCX(){
-  let text = safeFormat(document.getElementById("jsonInput").value);
+    data.forEach((q, i) => {
+        html += `
+### section: ${q.section || ""}
+<br>
+# hindi_directions: ${q.hindi_directions || ""}
+<br><br>
+# Question ${i+1}: ${q.question || ""}
+<br><br>
 
-  let htmlContent = "<pre>" + text.replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</pre>";
+# Options
+<br>
+###A: ${q.options?.A || ""}
+<br>
+###B: ${q.options?.B || ""}
+<br>
+###C: ${q.options?.C || ""}
+<br>
+###D: ${q.options?.D || ""}
+<br><br>
 
-  let blob = window.htmlDocx.asBlob(htmlContent);
-  let link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "json_output.docx";
-  link.click();
+# correct_option: ${q.correct_option || ""}
+<br><br>
+
+# Solution: ${q.solution || ""}
+<br><hr><br>
+        `;
+    });
+
+    html += "</body></html>";
+
+    let blob = window.htmlDocx.asBlob(html);
+    let link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "mcq_output.docx";
+    link.click();
 }
 </script>
 
