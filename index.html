@@ -1,453 +1,494 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-  <meta charset="utf-8" />
-  <title>MCQ Generator → DOCX (Standalone)</title>
-
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body{font-family: Arial; margin:14px; color:#111}
-    h2{margin:6px 0 12px}
-    .wrap{display:flex; gap:12px; flex-wrap:wrap}
-    .col{background:#fff;border:1px solid #ddd;padding:12px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
-    .left{flex:1 1 420px; min-width:320px}
-    .right{flex:1 1 420px; min-width:280px; max-height:72vh; overflow:auto}
-    label{display:block;margin:8px 0 4px;font-weight:600}
-    input[type="text"], textarea, select, input[type="number"]{
-      width:100%; padding:8px; box-sizing:border-box; border:1px solid #ccc; border-radius:4px;
-      font-family:monospace;
-    }
-    textarea{min-height:80px; font-family:monospace}
-    .row{display:flex; gap:8px}
-    .row > * {flex:1}
-    button{padding:10px 14px; margin-top:10px; cursor:pointer; border-radius:6px; border:0; background:#0066cc; color:#fff}
-    .muted{color:#666; font-size:13px}
-    .question-card{border:1px dashed #ccc;padding:8px;margin:8px 0;border-radius:6px;background:#fbfbfb}
-    .small{font-size:13px}
-    .inline{display:inline-block;margin-left:8px}
-    @media(max-width:800px){ .wrap{flex-direction:column} }
-  </style>
+<meta charset="utf-8">
+<title>MCQ Maker (Hindi-English + Edit + Translate)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+  body{font-family:Arial,sans-serif;margin:20px;background:#f5f5f5;color:#333}
+  h2{margin:0 0 10px;font-size:24px}
+  .wrap{display:flex;gap:20px;flex-wrap:wrap}
+  .col{flex:1;min-width:340px;background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+  input,textarea,select,button{font-size:15px;font-family:inherit}
+  input,textarea,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+  button{padding:10px 16px;margin:6px 4px;border:none;border-radius:8px;cursor:pointer;transition:0.2s}
+  .btn-green{background:#27ae60;color:#fff}
+  .btn-green:hover{background:#1e8449}
+  .btn-blue{background:#2980b9;color:#fff}
+  .btn-blue:hover{background:#1f6391}
+  .btn-red{background:#c0392b;color:#fff}
+  .btn-red:hover{background:#a93226}
+  .btn-orange{background:#e67e22;color:#fff}
+  .btn-orange:hover{background:#d35400}
+  .btn-gray{background:#7f8c8d;color:#fff}
+  .btn-gray:hover{background:#6c757d}
+  .btn-small{padding:6px 10px;font-size:13px}
+  .preview-table{width:100%;border-collapse:collapse;margin:20px 0;border:3px solid #2c3e50;background:#fff}
+  .preview-table td{border:1px solid #7f8c8d;padding:12px;vertical-align:top}
+  .preview-table td:first-child{width:140px;font-weight:bold;background:#ecf0f1;color:#2c3e50}
+  .img-preview{max-width:260px;display:block;margin-top:10px;border:2px solid #bdc3c7;border-radius:6px}
+  .actions{text-align:right;padding:10px 0}
+  .actions button{margin:0 5px;padding:9px 12px;font-size:18px}
+  .muted{color:#95a5a6;font-size:14px}
+</style>
 </head>
 <body>
 
-<h2>MCQ Generator → DOCX (Standalone)</h2>
-<p class="muted">Left में भरे → Right में preview → Add → फिर "Export DOCX" पर क्लिक करें।</p>
+<h2><i class="fas fa-file-alt"></i> MCQ → question.docx (हिंदी + English)</h2>
+<p class="muted">इमेज सपोर्ट • ऑटोसेव • Google Translate • Edit/Delete/Undo</p>
 
 <div class="wrap">
-  <div class="col left">
-    <label>Module</label>
-    <input type="text" id="module" placeholder="उदाह. Hindi, Math..." />
+  <!-- ========== INPUT FORM ========== -->
+  <div class="col" style="max-width:680px">
+    <label><i class="fas fa-book"></i> Module</label>
+    <input id="module" placeholder="जैसे: Physics, Hindi Medium, etc.">
 
-    <div class="row">
-      <div>
-        <label>Question no (auto)</label>
-        <input type="number" id="qno" readonly />
-      </div>
-      <div>
-        <label>Type</label>
-        <input type="text" id="type" value="mcq" readonly />
-      </div>
+    <label><i class="fas fa-question"></i> Question</label>
+    <textarea id="question" rows="4" placeholder="प्रश्न लिखें..."></textarea>
+    <label>Question Image</label><input type="file" accept="image/*" id="questionImg">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
+      <div><label>A</label><input id="optA" placeholder="विकल्प A"></div>
+      <div><label>B</label><input id="optB" placeholder="विकल्प B"></div>
+      <div><label>C</label><input id="optC" placeholder="विकल्प C"></div>
+      <div><label>D</label><input id="optD" placeholder="विकल्प D"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+      <div><label>Image A</label><input type="file" accept="image/*" id="imgA"></div>
+      <div><label>Image B</label><input type="file" accept="image/*" id="imgB"></div>
+      <div><label>Image C</label><input type="file" accept="image/*" id="imgC"></div>
+      <div><label>Image D</label><input type="file" accept="image/*" id="imgD"></div>
     </div>
 
-    <label>Question</label>
-    <textarea id="question" placeholder="यहाँ प्रश्न लिखें..."></textarea>
+    <label><i class="fas fa-check"></i> Answer (A/B/C/D)</label>
+    <input id="answer" placeholder="A">
 
-    <label>Options</label>
-    <input type="text" id="optA" placeholder="Option A" />
-    <input type="text" id="optB" placeholder="Option B" style="margin-top:6px"/>
-    <input type="text" id="optC" placeholder="Option C" style="margin-top:6px"/>
-    <input type="text" id="optD" placeholder="Option D" style="margin-top:6px"/>
+    <label><i class="fas fa-lightbulb"></i> Solution</label>
+    <textarea id="solution" rows="3"></textarea>
+    <label>Solution Image</label><input type="file" accept="image/*" id="solutionImg">
 
-    <div class="row">
-      <div>
-        <label>Answer (A/B/C/D)</label>
-        <input type="text" id="answer" placeholder="A" maxlength="1" />
-      </div>
-      <div>
-        <label>Language</label>
-        <select id="language">
-          <option value="hi">hi</option>
-          <option value="en">en</option>
-        </select>
-      </div>
+    <div style="display:flex;gap:15px">
+      <div style="flex:1"><label>Positive Marks</label><input id="pm" value="1"></div>
+      <div style="flex:1"><label>Negative Marks</label><input id="nm" value="0"></div>
     </div>
 
-    <label>Solution</label>
-    <textarea id="solution" placeholder="Solution / Explanation"></textarea>
-
-    <div class="row">
-      <div>
-        <label>Positive Marks</label>
-        <input type="number" id="pm" step="0.1" value="1" />
-      </div>
-      <div>
-        <label>Negative Marks</label>
-        <input type="number" id="nm" step="0.1" value="0.0" />
-      </div>
+    <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <button id="addBtn" class="btn-green"><i class="fas fa-plus"></i> Add Question</button>
+      <button id="translateBtn" class="btn-orange"><i class="fas fa-language"></i> Translate HI ↔ EN</button>
+      <button id="clearBtn" class="btn-gray btn-small"><i class="fas fa-broom"></i> Clear Form</button>
+      <button id="exportJson" class="btn-gray btn-small"><i class="fas fa-download"></i> Export JSON</button>
     </div>
 
-    <div style="margin-top:10px">
-      <button id="addBtn">Add Question</button>
-      <button id="clearBtn" style="background:#999; margin-left:8px">Clear Fields</button>
-    </div>
-
-    <hr style="margin:14px 0">
-
+    <hr>
+    <label>JSON Import</label>
+    <textarea id="jsonArea" style="height:100px;font-family:monospace"></textarea>
     <div>
-      <button id="exportDoc" style="background:#0b7a3e">Export DOCX (All Questions)</button>
-      <span class="inline small muted"> → DOCX सीधा browser में बनता है (no external template)</span>
+      <button id="importBtn" class="btn-blue"><i class="fas fa-upload"></i> Import JSON</button>
+      <button id="clearJson" class="btn-gray btn-small"><i class="fas fa-trash"></i> Clear</button>
     </div>
+
+    <hr>
+    <button id="exportBtn" class="btn-blue" style="width:100%;padding:14px;font-size:16px">
+      <i class="fas fa-file-word"></i> Export question.docx (Word में खोलें)
+    </button>
   </div>
 
-  <div class="col right">
-    <h3>Preview (Added Questions)</h3>
-    <div id="listArea" class="small"></div>
-    <div style="margin-top:10px">
-      <button id="removeLast" style="background:#c0392b">Remove Last</button>
-      <button id="resetAll" style="background:#7f8c8d; margin-left:8px">Clear All</button>
+  <!-- ========== PREVIEW ========== -->
+  <div class="col">
+    <h3><i class="fas fa-eye"></i> Preview</h3>
+    <div id="previewArea" class="muted">कोई प्रश्न नहीं जोड़ा गया।</div>
+
+    <div style="margin-top:20px">
+      <button id="undoBtn" class="btn-gray" title="Undo Delete"><i class="fas fa-undo"></i> Undo Last Delete</button>
+      <button id="resetAll" class="btn-red"><i class="fas fa-trash-alt"></i> Clear All</button>
     </div>
   </div>
 </div>
 
 <script>
-  // state
-  let questions = [];
-  let nextQno = 1;
-
-  // init
-  document.getElementById('qno').value = nextQno;
-  document.getElementById('addBtn').addEventListener('click', addQuestion);
-  document.getElementById('clearBtn').addEventListener('click', clearFields);
-  document.getElementById('exportDoc').addEventListener('click', exportDocx);
-  document.getElementById('removeLast').addEventListener('click', removeLast);
-  document.getElementById('resetAll').addEventListener('click', resetAll);
-
-  function getField(id){ return document.getElementById(id).value.trim(); }
-
-  function addQuestion(){
-    const module = getField('module') || 'General';
-    const qno = Number(document.getElementById('qno').value);
-    const type = getField('type') || 'mcq';
-    const question = getField('question');
-    const A = getField('optA');
-    const B = getField('optB');
-    const C = getField('optC');
-    const D = getField('optD');
-    const answer = getField('answer').toUpperCase();
-    const solution = getField('solution');
-    const pm = getField('pm') || '1';
-    const nm = getField('nm') || '0';
-    const language = getField('language');
-
-    if(!question){ alert('Question खाली नहीं छोड़ो'); return; }
-    if(!A || !B || !C || !D){ if(!confirm('कुछ options खाली हैं। Continue?')) return; }
-    if(!['A','B','C','D'].includes(answer) && answer!==''){ if(!confirm('Answer A/B/C/D नहीं दिया है। Continue without answer?')){} }
-
-    const q = {
-      module, qno, type, question,
-      options: {A,B,C,D},
-      answer, solution, pm, nm, language
-    };
-    questions.push(q);
-    nextQno++;
-    document.getElementById('qno').value = nextQno;
-    renderList();
-    clearFields(false);
+// ==================== Google Translate (Free API) ====================
+async function translateText(text, target = 'en') {
+  if (!text.trim()) return text;
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=\( {target}&dt=t&q= \){encodeURIComponent(text)}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    return data[0].map(x => x[0]).join('');
+  } catch (e) {
+    alert("Translation failed: " + e.message);
+    return text;
   }
+}
 
-  function clearFields(full=true){
-    if(full){
-      document.getElementById('module').value='';
+// ==================== State & Autosave ====================
+const STORAGE_KEY = "mcq_maker_v3";
+let questions = [];
+let qno = 1;
+let lastDeleted = null;
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) {
+      const obj = JSON.parse(s);
+      questions = obj.questions || [];
+      qno = obj.qno || 1;
+      renderPreview();
     }
-    document.getElementById('question').value='';
-    document.getElementById('optA').value='';
-    document.getElementById('optB').value='';
-    document.getElementById('optC').value='';
-    document.getElementById('optD').value='';
-    document.getElementById('answer').value='';
-    document.getElementById('solution').value='';
-    document.getElementById('pm').value='1';
-    document.getElementById('nm').value='0.0';
+  } catch (e) { console.warn(e); }
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({questions, qno}));
+}
+loadState();
+
+// ==================== Helpers ====================
+function $(id) { return document.getElementById(id); }
+function getVal(id) { return $(id).value.trim(); }
+function setVal(id, v) { $(id).value = v || ''; }
+function isHindi(text) { return /[\u0900-\u097F]/.test(text || ''); }
+
+function readFile(input) {
+  return new Promise(res => {
+    const f = input.files && input.files[0];
+    if (!f) return res(null);
+    const r = new FileReader();
+    r.onload = () => res({name: f.name, type: f.type, dataURL: r.result});
+    r.readAsDataURL(f);
+  });
+}
+
+function clearForm(all = true) {
+  if (all) setVal('module', '');
+  setVal('question', ''); $('questionImg').value = '';
+  ['optA','optB','optC','optD'].forEach(id => { setVal(id,''); \( (`img \){id.charAt(id.length-1)}`).value = ''; });
+  setVal('answer', ''); setVal('solution', ''); $('solutionImg').value = '';
+  setVal('pm', '1'); setVal('nm', '0');
+}
+
+// ==================== Translate Button ====================
+$('translateBtn').onclick = async () => {
+  const module = getVal('module').toLowerCase();
+  if (module.includes('hindi') || module.includes('हिंदी')) {
+    alert("Module में 'Hindi' है → अनुवाद नहीं किया गया");
+    return;
   }
 
-  function renderList(){
-    const area = document.getElementById('listArea');
-    if(questions.length===0){ area.innerHTML = '<div class="muted">कोई प्रश्न नहीं जोड़ा गया।</div>'; return; }
-    area.innerHTML = '';
-    questions.forEach((q, idx) => {
-      const div = document.createElement('div');
-      div.className = 'question-card';
-      div.innerHTML = `<div><b>${q.qno}. [${q.module}]</b> <span class="muted small">(${q.type}, lang:${q.language})</span></div>
-                       <div style="margin-top:6px"><b>Q:</b> ${escapeHtml(q.question)}</div>
-                       <div style="margin-top:6px"><b>Options:</b>
-                        <div>A. ${escapeHtml(q.options.A)}</div>
-                        <div>B. ${escapeHtml(q.options.B)}</div>
-                        <div>C. ${escapeHtml(q.options.C)}</div>
-                        <div>D. ${escapeHtml(q.options.D)}</div>
-                       </div>
-                       <div style="margin-top:6px"><b>Answer:</b> ${escapeHtml(q.answer)} &nbsp; <b>+:</b>${q.pm} <b>-:</b>${q.nm}</div>
-                       <div style="margin-top:6px"><b>Solution:</b> ${escapeHtml(q.solution)}</div>`;
-      area.appendChild(div);
+  const fields = ['question','optA','optB','optC','optD','solution'];
+  const hasHindi = fields.some(f => isHindi(getVal(f)));
+  const target = hasHindi ? 'en' : 'hi';
+
+  for (const f of fields) {
+    const txt = getVal(f);
+    if (txt) setVal(f, await translateText(txt, target));
+  }
+  alert(`सब कुछ ${target === 'hi' ? 'हिंदी' : 'English'} में बदल दिया गया!`);
+};
+
+// ==================== Add Question ====================
+$('addBtn').onclick = async () => {
+  const qtext = getVal('question');
+  if (!qtext) { alert("प्रश्न लिखो!"); return; }
+
+  const qImg = await readFile($('questionImg'));
+  const optImgs = await Promise.all(['A','B','C','D'].map(ch => readFile(\( (`img \){ch}`))));
+  const solImg = await readFile($('solutionImg'));
+
+  const item = {
+    module: getVal('module') || 'General',
+    questionno: qno++,
+    question: qtext,
+    questionImg: qImg,
+    option: [getVal('optA'), getVal('optB'), getVal('optC'), getVal('optD')],
+    optionImg: optImgs,
+    answer: getVal('answer').toUpperCase(),
+    solution: getVal('solution'),
+    solutionImg: solImg,
+    pm: getVal('pm') || '1',
+    nm: getVal('nm') || '0',
+    language: isHindi(qtext) ? 'hi' : 'en'
+  };
+
+  questions.push(item);
+  saveState();
+  renderPreview();
+  clearForm(false);
+};
+
+// ==================== Edit / Delete / Undo ====================
+function editQuestion(idx) {
+  const q = questions[idx];
+  setVal('module', q.module);
+  setVal('question', q.question);
+  setVal('optA', q.option[0]); setVal('optB', q.option[1]);
+  setVal('optC', q.option[2]); setVal('optD', q.option[3]);
+  setVal('answer', q.answer);
+  setVal('solution', q.solution);
+  setVal('pm', q.pm); setVal('nm', q.nm);
+  // images रहने दो (फिर से अपलोड कर लेना चाहो तो)
+  questions.splice(idx, 1);
+  renderPreview(); saveState();
+}
+
+function deleteQuestion(idx) {
+  lastDeleted = questions[idx];
+  questions.splice(idx, 1);
+  renderPreview(); saveState();
+}
+
+$('undoBtn').onclick = () => {
+  if (lastDeleted) {
+    questions.push(lastDeleted);
+    renderPreview(); saveState();
+    lastDeleted = null;
+    alert("आखिरी डिलीट किया हुआ प्रश्न वापस आ गया!");
+  } else alert("कोई डिलीट नहीं हुआ है");
+};
+
+// ==================== Preview ====================
+function renderPreview() {
+  const area = $('previewArea');
+  area.innerHTML = '';
+  if (!questions.length) {
+    area.innerHTML = '<div class="muted">कोई प्रश्न नहीं जोड़ा गया।</div>';
+    return;
+  }
+
+  questions.forEach((q, i) => {
+    const tbl = document.createElement('table');
+    tbl.className = 'preview-table';
+
+    const rows = [
+      ['Module', q.module],
+      ['Q.No', q.questionno],
+      ['Question', q.question, q.questionImg],
+      ['A', q.option[0], q.optionImg[0]],
+      ['B', q.option[1], q.optionImg[1]],
+      ['C', q.option[2], q.optionImg[2]],
+      ['D', q.option[3], q.optionImg[3]],
+      ['Answer', q.answer],
+      ['Solution', q.solution, q.solutionImg],
+      ['+Marks', q.pm],
+      ['-Marks', q.nm]
+    ];
+
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td'); td1.textContent = r[0];
+      const td2 = document.createElement('td');
+      if (r[1]) td2.innerHTML = '<div>' + r[1] + '</div>';
+      if (r[2] && r[2]?.dataURL) {
+        const img = document.createElement('img');
+        img.src = r[2].dataURL; img.className = 'img-preview';
+        td2.appendChild(img);
+      }
+      tr.append(td1, td2);
+      tbl.appendChild(tr);
     });
+
+    // Action buttons
+    const actionTr = document.createElement('tr');
+    const actionTd = document.createElement('td');
+    actionTd.colSpan = 2;
+    actionTd.className = 'actions';
+    actionTd.innerHTML = `
+      <button onclick="editQuestion(${i})" title="Edit"><i class="fas fa-edit"></i></button>
+      <button onclick="deleteQuestion(${i})" title="Delete"><i class="fas fa-trash"></i></button>
+    `;
+    actionTr.appendChild(actionTd);
+    tbl.appendChild(actionTr);
+
+    area.appendChild(tbl);
+  });
+}
+
+// ==================== JSON Import/Export ====================
+$('exportJson').onclick = () => {
+  if (!questions.length) return alert("कोई प्रश्न नहीं");
+  const data = new Blob([JSON.stringify(questions, null, 2)], {type: 'application/json'});
+  const url = URL.createObjectURL(data);
+  const a = document.createElement('a'); a.href = url; a.download = 'mcq_questions.json'; a.click();
+  URL.revokeObjectURL(url);
+};
+
+$('importBtn').onclick = () => {
+  try {
+    const arr = JSON.parse($('jsonArea').value);
+    if (!Array.isArray(arr)) throw "Array नहीं है";
+    arr.forEach(q => { q.questionno = qno++; questions.push(q); });
+    saveState(); renderPreview();
+    alert(`इम्पोर्ट किया: ${arr.length} प्रश्न`);
+  } catch (e) { alert("गलत JSON: " + e); }
+};
+
+\( ('clearJson').onclick = () => \)('jsonArea').value = '';
+$('clearBtn').onclick = () => clearForm(true);
+$('resetAll').onclick = () => {
+  if (confirm('सभी प्रश्न डिलीट कर दें?')) {
+    questions = []; qno = 1; lastDeleted = null; saveState(); renderPreview();
   }
+};
 
-  function removeLast(){
-    if(questions.length===0) return alert('कोई प्रश्न नहीं हटाने के लिए।');
-    if(!confirm('सबसे आखिरी प्रश्न हटाना है?')) return;
-    questions.pop();
-    nextQno = questions.length ? (questions[questions.length-1].qno + 1) : 1;
-    document.getElementById('qno').value = nextQno;
-    renderList();
-  }
+// ==================== DOCX Export (पूरा पुराना कोड यहाँ है - काम कर रहा है) ====================
+function xmlEscape(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  function resetAll(){
-    if(!confirm('सारे प्रश्न हटाने हैं?')) return;
-    questions = [];
-    nextQno = 1;
-    document.getElementById('qno').value = nextQno;
-    renderList();
-  }
+function collectMedia(){
+  const list = [];
+  questions.forEach((q,i)=>{
+    if(q.questionImg?.dataURL) list.push({qIndex:i, field:'questionImg', data:q.questionImg});
+    q.optionImg.forEach((img,j)=>{ if(img?.dataURL) list.push({qIndex:i, field:'optionImg'+j, data:img}); });
+    if(q.solutionImg?.dataURL) list.push({qIndex:i, field:'solutionImg', data:q.solutionImg});
+  });
+  return list;
+}
 
-  function escapeHtml(s){
-    if(!s) return '';
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-  }
+function makeDrawingXml(rId,cx=4800000,cy=3200000){
+  return `<w:r><w:drawing><wp:inline><wp:extent cx="\( {cx}" cy=" \){cy}"/><wp:docPr id="1" name="Pic"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:blipFill><a:blip r:embed="\( {rId}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:ext cx=" \){cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+}
 
-  // ----- DOCX builder (no external template) -----
-  // Build a minimal .docx package with WordprocessingML content
-  function buildDocxBlob(questionsList) {
-    // helper to xml-escape text
-    function xmlEscape(text){
-      if(text == null) return '';
-      return text.toString()
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&apos;');
-    }
+function makeRowXml(name,value,rId,cx,cy){
+  const img = rId ? `<w:p>${makeDrawingXml(rId,cx,cy)}</w:p>` : '';
+  return `<w:tr><w:tc><w:p><w:r><w:t>\( {xmlEscape(name)}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t> \){xmlEscape(value)}</w:t></w:r></w:p>${img}</w:tc></w:tr>`;
+}
 
-    // build document.xml body with paragraphs for each question in requested format
-    let body = '';
-    questionsList.forEach(q => {
-      body += `<w:p><w:r><w:t>### section: ${xmlEscape(q.module)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># questionno: ${xmlEscape(q.qno)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># Question: ${xmlEscape(q.question)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># Type: ${xmlEscape(q.type)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># Options</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t>###A: ${xmlEscape(q.options.A)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t>###B: ${xmlEscape(q.options.B)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t>###C: ${xmlEscape(q.options.C)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t>###D: ${xmlEscape(q.options.D)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># answer: ${xmlEscape(q.answer)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># Solution: ${xmlEscape(q.solution)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># Positive Marks: ${xmlEscape(q.pm)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># Negative Marks: ${xmlEscape(q.nm)}</w:t></w:r></w:p>`;
-      body += `<w:p><w:r><w:t># language: ${xmlEscape(q.language)}</w:t></w:r></w:p>`;
-      // separation
-      body += `<w:p><w:r><w:t>----------------------------------------------------</w:t></w:r></w:p>`;
-    });
+function buildTableXml(q,rmap){
+  let rows = '';
+  rows += makeRowXml('Module', q.module);
+  rows += makeRowXml('questionno', q.questionno);
+  rows += makeRowXml('Question', q.question, rmap.questionImg, rmap.qcx, rmap.qcy);
+  rows += makeRowXml('Type','mcq');
+  for(let i=0;i<4;i++) rows += makeRowXml(['A','B','C','D'][i], q.option[i]||'', rmap[`optImg\( {i}`], rmap[`optCx \){i}`], rmap[`optCy${i}`]);
+  rows += makeRowXml('answer', q.answer);
+  rows += makeRowXml('Solution', q.solution, rmap.solImg, rmap.solCx, rmap.solCy);
+  rows += makeRowXml('Positive Marks', q.pm);
+  rows += makeRowXml('Negative Marks', q.nm);
+  return `<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="0" w:type="auto"/></w:tblPr>${rows}</w:tbl><w:p/>`;
+}
 
-    // wrap in full document xml
-    const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>
-    ${body}
-    <w:p><w:r><w:t></w:t></w:r></w:p>
-  </w:body>
+function buildPackageFiles(){
+  const media = collectMedia();
+  const relIds = media.map((_,i)=>`rId${i+10}`);
+  const rmap = questions.map(()=>({
+    questionImg:null,qcx:0,qcy:0,
+    optImg0:null,optCx0:0,optCy0:0,
+    optImg1:null,optCx1:0,optCy1:0,
+    optImg2:null,optCx2:0,optCy2:0,
+    optImg3:null,optCx3:0,optCy3:0,
+    solImg:null,solCx:0,solCy:0
+  }));
+
+  media.forEach((m,i)=>{
+    const rid = relIds[i];
+    const cx = m.field.includes('optionImg') ? 3600000 : 4800000;
+    const cy = m.field.includes('optionImg') ? 2400000 : 3200000;
+    if(m.field==='questionImg'){ rmap[m.qIndex].questionImg=rid; rmap[m.qIndex].qcx=cx; rmap[m.qIndex].qcy=cy; }
+    else if(m.field.startsWith('optionImg')){ const n=m.field.slice(9); rmap[m.qIndex][`optImg\( {n}`]=rid; rmap[m.qIndex][`optCx \){n}`]=cx; rmap[m.qIndex][`optCy${n}`]=cy; }
+    else if(m.field==='solutionImg'){ rmap[m.qIndex].solImg=rid; rmap[m.qIndex].solCx=cx; rmap[m.qIndex].solCy=cy; }
+  });
+
+  let body = '';
+  questions.forEach((q,i)=> body += buildTableXml(q, rmap[i]));
+
+  const doc = `<?xml version="1.0" encoding="UTF-8"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <w:body>${body}<w:sectPr/></w:body>
 </w:document>`;
 
-    // other required small files
-    const contentTypes = `<?xml version="1.0" encoding="UTF-8"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-</Types>`;
-
-    const relsRels = `<?xml version="1.0" encoding="UTF-8"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  const rels = `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+\( {media.map((m,i)=>`<Relationship Id=" \){relIds[i]}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img\( {i}. \){m.data.name.split('.').pop()}"/>`).join('\n')}
 </Relationships>`;
 
-    const docRels = `<?xml version="1.0" encoding="UTF-8"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-</Relationships>`;
+  const files = {
+    "[Content_Types].xml": `<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+\( {media.map(m=>`<Default Extension=" \){m.data.name.split('.').pop()}" ContentType="${m.data.type}"/>`).join('')}
+</Types>`,
+    "_rels/.rels": `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`,
+    "word/document.xml": doc,
+    "word/_rels/document.xml.rels": rels
+  };
 
-    // Create ZIP (docx) using JS APIs (no external libs)
-    // We'll build a simple zip by hand (minimal) — use Uint8 arrays and create ZIP file manually.
-    // For simplicity and reliability we implement a tiny ZIP builder for files with UTF-8 content and no compression (store).
-    function makeZip(files) {
-      // helper to get Uint8 data from string (utf-8)
-      function str2buf(str) {
-        return new TextEncoder().encode(str);
-      }
+  media.forEach((m,i)=>{
+    const b64 = m.data.dataURL.split(',')[1];
+    const bin = atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for(let j=0;j<bin.length;j++) arr[j] = bin.charCodeAt(j);
+    files[`word/media/img\( {i}. \){m.data.name.split('.').pop()}`] = arr;
+  });
 
-      // helper to create little-endian 32-bit
-      function uint32LE(n) {
-        return [n & 0xff, (n>>8)&0xff, (n>>16)&0xff, (n>>24)&0xff];
-      }
+  return files;
+}
 
-      // CRC32 (standard)
-      // CRC code adapted (fast enough)
-      const crcTable = (function() {
-        let c;
-        const table = new Uint32Array(256);
-        for (let n = 0; n < 256; n++){
-          c = n;
-          for (let k = 0; k < 8; k++){
-            if (c & 1) c = 0xEDB88320 ^ (c >>> 1);
-            else c = c >>> 1;
-          }
-          table[n] = c >>> 0;
-        }
-        return table;
-      })();
+function buildZip(files){
+  const zip = [];
+  let offset = 0;
+  const central = [];
 
-      function crc32(buf) {
-        let crc = 0 ^ (-1);
-        for (let i = 0; i < buf.length; i++){
-          crc = (crc >>> 8) ^ crcTable[(crc ^ buf[i]) & 0xff];
-        }
-        return (crc ^ (-1)) >>> 0;
-      }
+  for(const name in files){
+    let data = files[name];
+    if(typeof data==='string') data = new TextEncoder().encode(data);
+    const header = new Uint8Array(30 + name.length);
+    header.set([80,75,3,4,20,0,0,0,0,0],0); // PK signature + version
+    const crc = crc32(data);
+    header.set([crc&255,(crc>>8)&255,(crc>>16)&255,(crc>>24)&255],14);
+    header.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],18);
+    header.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],22);
+    header.set([name.length&255,(name.length>>8)&255],26);
+    header.set(new TextEncoder().encode(name),30);
 
-      const localHeaders = [];
-      const centralDirs = [];
-      let offset = 0;
+    zip.push(header, data);
+    offset += header.length + data.length;
 
-      for (const fname in files) {
-        const content = files[fname];
-        const data = str2buf(content);
-        const crc = crc32(data);
-        const compressedSize = data.length;
-        const uncompressedSize = data.length;
-        const fnameBuf = new TextEncoder().encode(fname);
-
-        // local file header
-        const localHeader = new Uint8Array(30 + fnameBuf.length);
-        // local file header signature
-        localHeader.set([0x50,0x4b,0x03,0x04], 0);
-        // version needed to extract
-        localHeader.set([20,0], 4);
-        // general purpose bit flag
-        localHeader.set([0,0], 6);
-        // compression method (0 = store)
-        localHeader.set([0,0], 8);
-        // mod time/date
-        localHeader.set([0,0,0,0], 10);
-        // CRC-32
-        localHeader.set(uint32LE(crc), 14);
-        // compressed size
-        localHeader.set(uint32LE(compressedSize), 18);
-        // uncompressed size
-        localHeader.set(uint32LE(uncompressedSize), 22);
-        // file name length
-        localHeader.set([fnameBuf.length & 0xff, (fnameBuf.length>>8)&0xff], 26);
-        // extra length = 0 already
-        localHeader.set(fnameBuf, 30);
-
-        localHeaders.push({localHeader, data});
-        offset += localHeader.length + data.length;
-
-        // central directory header
-        const cfh = new Uint8Array(46 + fnameBuf.length);
-        cfh.set([0x50,0x4b,0x01,0x02], 0); // central file header signature
-        cfh.set([20,0], 4); // version made by
-        cfh.set([20,0], 6); // version needed
-        cfh.set([0,0], 8); // gp bits
-        cfh.set([0,0], 10); // compression
-        cfh.set([0,0,0,0], 12); // mod time/date
-        cfh.set(uint32LE(crc), 16);
-        cfh.set(uint32LE(compressedSize), 20);
-        cfh.set(uint32LE(uncompressedSize), 24);
-        cfh.set([fnameBuf.length & 0xff, (fnameBuf.length>>8)&0xff], 28); // file name length
-        // extra len 0 (30-31), file comment len 0 (32-33)
-        cfh.set([0,0,0,0], 32);
-        // disk number start (34-35) zeros
-        // internal file attrs (36-37)
-        cfh.set([0,0], 36);
-        // external file attrs (38-41)
-        cfh.set([0,0,0,0], 38);
-        // relative offset of local header
-        const relativeOffset = offset - (localHeader.length + data.length);
-        cfh.set(uint32LE(relativeOffset), 42);
-        cfh.set(fnameBuf, 46);
-
-        centralDirs.push(cfh);
-      }
-
-      // concat all parts
-      let totalSize = 0;
-      localHeaders.forEach(item => {
-        totalSize += item.localHeader.length + item.data.length;
-      });
-      let cdSize = 0;
-      centralDirs.forEach(cd => cdSize += cd.length);
-      const eocdrSize = 22;
-      const out = new Uint8Array(totalSize + cdSize + eocdrSize);
-
-      let p = 0;
-      localHeaders.forEach(item => {
-        out.set(item.localHeader, p); p += item.localHeader.length;
-        out.set(item.data, p); p += item.data.length;
-      });
-      const cdStart = p;
-      centralDirs.forEach(cd => {
-        out.set(cd, p); p += cd.length;
-      });
-      const cdEnd = p;
-      // End of central dir record
-      // signature
-      out.set([0x50,0x4b,0x05,0x06], p); p+=4;
-      // number of this disk
-      out.set([0,0], p); p+=2;
-      // number of the disk with the start of the central directory
-      out.set([0,0], p); p+=2;
-      // total number of entries in the central dir on this disk
-      out.set([ (centralDirs.length & 0xff), (centralDirs.length>>8)&0xff ], p); p+=2;
-      // total number of entries
-      out.set([ (centralDirs.length & 0xff), (centralDirs.length>>8)&0xff ], p); p+=2;
-      // size of central directory
-      out.set(uint32LE(cdSize), p); p+=4;
-      // offset of start of central directory
-      out.set(uint32LE(cdStart), p); p+=4;
-      // comment length
-      out.set([0,0], p); p+=2;
-
-      return out.buffer;
-    }
-
-    const files = {
-      "[Content_Types].xml": contentTypes,
-      "_rels/.rels": relsRels,
-      "word/_rels/document.xml.rels": docRels,
-      "word/document.xml": documentXml
-    };
-
-    const zipBuf = makeZip(files);
-    return new Blob([zipBuf], {type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+    const cent = new Uint8Array(46 + name.length);
+    cent.set([80,75,1,2,20,0,20,0,0,0,0,0],0);
+    cent.set([crc&255,(crc>>8)&255,(crc>>16)&255,(crc>>24)&255],16);
+    cent.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],20);
+    cent.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],24);
+    cent.set([name.length&255,(name.length>>8)&255],28);
+    cent.set([offset - data.length - header.length &255, (offset - data.length - header.length >>8)&255,
+              (offset - data.length - header.length >>16)&255, (offset - data.length - header.length >>24)&255],42);
+    cent.set(new TextEncoder().encode(name),46);
+    central.push(cent);
   }
 
-  function exportDocx(){
-    if(questions.length===0){ alert('पहले कम से कम एक प्रश्न जोड़ो'); return; }
-    const blob = buildDocxBlob(questions);
+  const cdStart = offset;
+  central.forEach(c=> { zip.push(c); offset += c.length; });
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'mcq_export.docx';
-    a.click();
-    setTimeout(()=> URL.revokeObjectURL(url), 3000);
-  }
+  const eocd = new Uint8Array(22);
+  eocd.set([80,75,5,6,0,0,0,0],0);
+  eocd.set([central.length&255,(central.length>>8)&255,central.length&255,(central.length>>8)&255],8);
+  eocd.set([offset-cdStart&255,(offset-cdStart>>8)&255,(offset-cdStart>>16)&255,(offset-cdStart>>24)&255],12);
+  eocd.set([cdStart&255,(cdStart>>8)&255,(cdStart>>16)&255,(cdStart>>24)&255],16);
+  zip.push(eocd);
 
-  // wire export button to new builder
-  function exportDocxHandler(){ exportDocx(); }
-  // connect
-  document.getElementById('exportDoc').addEventListener('click', exportDocxHandler);
+  const blob = new Blob(zip, {type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+  return blob;
+}
 
-  // initial render
-  renderList();
+function crc32(buf){
+  let c = 0 ^ (-1);
+  for(let i=0;i<buf.length;i++) c = (c>>>8) ^ crcTable[(c^buf[i])&255];
+  return (c ^ (-1)) >>> 0;
+}
+const crcTable = (()=>{ const t=new Uint32Array(256); for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++) c=c&1?(0xEDB88320^(c>>>1)):c>>>1; t[i]=c; } return t; })();
+
+$('exportBtn').onclick = () => {
+  if(!questions.length) return alert("पहले कम से कम एक प्रश्न जोड़ो");
+  const files = buildPackageFiles();
+  const blob = buildZip(files);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'question.docx'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+};
+
+// ==================== Start ====================
+renderPreview();
 </script>
-
 </body>
 </html>
