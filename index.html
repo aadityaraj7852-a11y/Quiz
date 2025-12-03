@@ -1,494 +1,607 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hi">
 <head>
-<meta charset="utf-8">
-<title>MCQ Maker (Hindi-English + Edit + Translate)</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MCQ Editor + Free Translate + DOCX Export</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  body{font-family:Arial,sans-serif;margin:20px;background:#f5f5f5;color:#333}
-  h2{margin:0 0 10px;font-size:24px}
-  .wrap{display:flex;gap:20px;flex-wrap:wrap}
-  .col{flex:1;min-width:340px;background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
-  input,textarea,select,button{font-size:15px;font-family:inherit}
-  input,textarea,select{width:100%;padding:10px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
-  button{padding:10px 16px;margin:6px 4px;border:none;border-radius:8px;cursor:pointer;transition:0.2s}
-  .btn-green{background:#27ae60;color:#fff}
-  .btn-green:hover{background:#1e8449}
-  .btn-blue{background:#2980b9;color:#fff}
-  .btn-blue:hover{background:#1f6391}
-  .btn-red{background:#c0392b;color:#fff}
-  .btn-red:hover{background:#a93226}
-  .btn-orange{background:#e67e22;color:#fff}
-  .btn-orange:hover{background:#d35400}
-  .btn-gray{background:#7f8c8d;color:#fff}
-  .btn-gray:hover{background:#6c757d}
-  .btn-small{padding:6px 10px;font-size:13px}
-  .preview-table{width:100%;border-collapse:collapse;margin:20px 0;border:3px solid #2c3e50;background:#fff}
-  .preview-table td{border:1px solid #7f8c8d;padding:12px;vertical-align:top}
-  .preview-table td:first-child{width:140px;font-weight:bold;background:#ecf0f1;color:#2c3e50}
-  .img-preview{max-width:260px;display:block;margin-top:10px;border:2px solid #bdc3c7;border-radius:6px}
-  .actions{text-align:right;padding:10px 0}
-  .actions button{margin:0 5px;padding:9px 12px;font-size:18px}
-  .muted{color:#95a5a6;font-size:14px}
+:root{--accent:#0b7a3e;--muted:#666}
+body{font-family:Arial,Helvetica,sans-serif;margin:12px;background:#f4f6f8;color:#111}
+.container{max-width:1150px;margin:auto}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:18px;margin:0}
+.muted{color:var(--muted);font-size:13px}
+.layout{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.panel{flex:1;min-width:340px;background:#fff;border:1px solid #e2e6ea;padding:12px;border-radius:8px;box-sizing:border-box}
+label{display:block;font-weight:600;margin-top:8px}
+input,textarea,select,button{font-size:14px}
+input,textarea,select{width:100%;padding:8px;margin:6px 0;border:1px solid #cfd8e3;border-radius:6px;box-sizing:border-box}
+textarea{min-height:80px;resize:vertical}
+.row{display:flex;gap:8px}
+.row > div{flex:1}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;border:0;cursor:pointer}
+.btn-green{background:var(--accent);color:#fff}
+.btn-blue{background:#0d6efd;color:#fff}
+.btn-muted{background:#666;color:#fff}
+.icon-btn{background:transparent;border:0;font-size:16px;cursor:pointer;color:#000;padding:6px;border-radius:6px}
+.icon-btn:hover{background:#f0f0f0}
+.card{border:1px solid #eef2f6;padding:10px;border-radius:8px;margin-bottom:10px;background:#fff}
+.preview-table{width:100%;border-collapse:collapse;margin-bottom:10px}
+.preview-table td{border:1px solid #ddd;padding:6px;vertical-align:top}
+.img-preview{max-width:220px;border-radius:6px;margin-top:6px;border:1px solid #ddd}
+.small{font-size:13px;padding:6px 8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+kbd{background:#eee;border-radius:4px;padding:2px 6px;border:1px solid #ddd;font-size:12px}
 </style>
 </head>
 <body>
-
-<h2><i class="fas fa-file-alt"></i> MCQ → question.docx (हिंदी + English)</h2>
-<p class="muted">इमेज सपोर्ट • ऑटोसेव • Google Translate • Edit/Delete/Undo</p>
-
-<div class="wrap">
-  <!-- ========== INPUT FORM ========== -->
-  <div class="col" style="max-width:680px">
-    <label><i class="fas fa-book"></i> Module</label>
-    <input id="module" placeholder="जैसे: Physics, Hindi Medium, etc.">
-
-    <label><i class="fas fa-question"></i> Question</label>
-    <textarea id="question" rows="4" placeholder="प्रश्न लिखें..."></textarea>
-    <label>Question Image</label><input type="file" accept="image/*" id="questionImg">
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px">
-      <div><label>A</label><input id="optA" placeholder="विकल्प A"></div>
-      <div><label>B</label><input id="optB" placeholder="विकल्प B"></div>
-      <div><label>C</label><input id="optC" placeholder="विकल्प C"></div>
-      <div><label>D</label><input id="optD" placeholder="विकल्प D"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
-      <div><label>Image A</label><input type="file" accept="image/*" id="imgA"></div>
-      <div><label>Image B</label><input type="file" accept="image/*" id="imgB"></div>
-      <div><label>Image C</label><input type="file" accept="image/*" id="imgC"></div>
-      <div><label>Image D</label><input type="file" accept="image/*" id="imgD"></div>
-    </div>
-
-    <label><i class="fas fa-check"></i> Answer (A/B/C/D)</label>
-    <input id="answer" placeholder="A">
-
-    <label><i class="fas fa-lightbulb"></i> Solution</label>
-    <textarea id="solution" rows="3"></textarea>
-    <label>Solution Image</label><input type="file" accept="image/*" id="solutionImg">
-
-    <div style="display:flex;gap:15px">
-      <div style="flex:1"><label>Positive Marks</label><input id="pm" value="1"></div>
-      <div style="flex:1"><label>Negative Marks</label><input id="nm" value="0"></div>
-    </div>
-
-    <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-      <button id="addBtn" class="btn-green"><i class="fas fa-plus"></i> Add Question</button>
-      <button id="translateBtn" class="btn-orange"><i class="fas fa-language"></i> Translate HI ↔ EN</button>
-      <button id="clearBtn" class="btn-gray btn-small"><i class="fas fa-broom"></i> Clear Form</button>
-      <button id="exportJson" class="btn-gray btn-small"><i class="fas fa-download"></i> Export JSON</button>
-    </div>
-
-    <hr>
-    <label>JSON Import</label>
-    <textarea id="jsonArea" style="height:100px;font-family:monospace"></textarea>
-    <div>
-      <button id="importBtn" class="btn-blue"><i class="fas fa-upload"></i> Import JSON</button>
-      <button id="clearJson" class="btn-gray btn-small"><i class="fas fa-trash"></i> Clear</button>
-    </div>
-
-    <hr>
-    <button id="exportBtn" class="btn-blue" style="width:100%;padding:14px;font-size:16px">
-      <i class="fas fa-file-word"></i> Export question.docx (Word में खोलें)
-    </button>
+<div class="container">
+  <div class="header">
+    <h1>MCQ Editor — Free Translate (Google) + DOCX</h1>
+    <div class="muted">Auto-save | Translate without API | Images embedded in DOCX</div>
   </div>
 
-  <!-- ========== PREVIEW ========== -->
-  <div class="col">
-    <h3><i class="fas fa-eye"></i> Preview</h3>
-    <div id="previewArea" class="muted">कोई प्रश्न नहीं जोड़ा गया।</div>
+  <div class="layout">
+    <!-- Left: Input -->
+    <div class="panel" style="max-width:720px;">
+      <label>Module</label>
+      <input id="module" placeholder="Hindi / English / General">
 
-    <div style="margin-top:20px">
-      <button id="undoBtn" class="btn-gray" title="Undo Delete"><i class="fas fa-undo"></i> Undo Last Delete</button>
-      <button id="resetAll" class="btn-red"><i class="fas fa-trash-alt"></i> Clear All</button>
+      <label>Question</label>
+      <textarea id="question" placeholder="प्रश्न लिखें..."></textarea>
+      <label>Question Image (optional)</label>
+      <input type="file" accept="image/*" id="questionImg">
+
+      <div class="row">
+        <div>
+          <label>Option A</label>
+          <input id="optA" placeholder="Option A">
+          <label>Image A (optional)</label>
+          <input type="file" accept="image/*" id="imgA">
+        </div>
+        <div>
+          <label>Option B</label>
+          <input id="optB" placeholder="Option B">
+          <label>Image B (optional)</label>
+          <input type="file" accept="image/*" id="imgB">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Option C</label>
+          <input id="optC" placeholder="Option C">
+          <label>Image C (optional)</label>
+          <input type="file" accept="image/*" id="imgC">
+        </div>
+        <div>
+          <label>Option D</label>
+          <input id="optD" placeholder="Option D">
+          <label>Image D (optional)</label>
+          <input type="file" accept="image/*" id="imgD">
+        </div>
+      </div>
+
+      <label>Answer (A/B/C/D)</label>
+      <input id="answer" placeholder="A">
+
+      <label>Solution (Hindi)</label>
+      <textarea id="solution" placeholder="सुलूशन लिखें..."></textarea>
+      <label>Solution Image (optional)</label>
+      <input type="file" accept="image/*" id="solutionImg">
+
+      <div class="row">
+        <div>
+          <label>Positive Marks</label>
+          <input id="pm" value="1">
+        </div>
+        <div>
+          <label>Negative Marks</label>
+          <input id="nm" value="0.0">
+        </div>
+      </div>
+
+      <label>Language (optional)</label>
+      <select id="language">
+        <option value="">auto</option>
+        <option value="hi">hi</option>
+        <option value="en">en</option>
+      </select>
+
+      <div class="actions">
+        <button id="addBtn" class="btn btn-green"><i class="fa fa-plus"></i> Add Question</button>
+        <button id="translateBtn" class="btn small" style="background:#ff8c00;color:#fff"><i class="fa fa-language"></i> Translate This</button>
+        <button id="translateAllBtn" class="btn small" style="background:#ff8c00;color:#fff"><i class="fa fa-globe"></i> Translate All</button>
+        <button id="exportBtn" class="btn btn-blue"><i class="fa fa-file-word"></i> Export DOCX</button>
+        <button id="exportJson" class="btn small btn-muted"><i class="fa fa-download"></i> Export JSON</button>
+        <button id="importBtn" class="btn small" style="background:#777;color:#fff"><i class="fa fa-upload"></i> Import JSON</button>
+        <button id="clearBtn" class="btn small" style="background:#999;color:#fff"><i class="fa fa-trash"></i> Clear Fields</button>
+      </div>
+
+      <label style="margin-top:8px">JSON Import (paste array)</label>
+      <textarea id="jsonArea" style="height:90px;font-family:monospace"></textarea>
+    </div>
+
+    <!-- Right: Preview / List -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>Preview / Questions</strong>
+        <div class="muted">Click title/body to edit · All icons are FA (black)</div>
+      </div>
+
+      <div id="list" style="margin-top:8px"></div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="removeLast" class="btn small" style="background:#c0392b;color:#fff"><i class="fa fa-minus-circle"></i> Remove Last</button>
+        <button id="resetAll" class="btn small" style="background:#7f8c8d;color:#fff"><i class="fa fa-trash-alt"></i> Clear All</button>
+      </div>
+
+      <p class="muted" style="margin-top:12px">Tip: छोटे JPG images recommended। Translate आधिकारिक API नहीं — free Google translate endpoint इस्तेमाल किया गया है।</p>
     </div>
   </div>
 </div>
 
 <script>
-// ==================== Google Translate (Free API) ====================
-async function translateText(text, target = 'en') {
-  if (!text.trim()) return text;
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=\( {target}&dt=t&q= \){encodeURIComponent(text)}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    return data[0].map(x => x[0]).join('');
-  } catch (e) {
-    alert("Translation failed: " + e.message);
-    return text;
-  }
-}
-
-// ==================== State & Autosave ====================
-const STORAGE_KEY = "mcq_maker_v3";
-let questions = [];
+/* ---------------- State ---------------- */
+const STORAGE_KEY = 'mcq_trans_v2';
+let questions = []; // each: {id,module,question,questionImg,option:[...],optionImg:[...],answer,solution,solutionImg,pm,nm,language,history:[],redo:[]}
 let qno = 1;
-let lastDeleted = null;
+const $ = id => document.getElementById(id);
 
-function loadState() {
-  try {
+/* Load/save */
+function loadState(){
+  try{
     const s = localStorage.getItem(STORAGE_KEY);
-    if (s) {
+    if(s){
       const obj = JSON.parse(s);
       questions = obj.questions || [];
-      qno = obj.qno || 1;
-      renderPreview();
+      qno = obj.qno || (questions.length+1);
     }
-  } catch (e) { console.warn(e); }
+  }catch(e){ console.warn(e); questions=[]; }
+  renderList();
 }
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({questions, qno}));
-}
-loadState();
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({questions,qno})); }catch(e){ console.warn(e); } }
 
-// ==================== Helpers ====================
-function $(id) { return document.getElementById(id); }
-function getVal(id) { return $(id).value.trim(); }
-function setVal(id, v) { $(id).value = v || ''; }
-function isHindi(text) { return /[\u0900-\u097F]/.test(text || ''); }
+/* Helpers */
+function isHindi(s){ return /[\u0900-\u097F]/.test(s||''); }
+function readFile(input){ return new Promise(res=>{ const f = input.files && input.files[0]; if(!f) return res(null); const r=new FileReader(); r.onload=()=> res({name:f.name,type:f.type,dataURL:r.result}); r.readAsDataURL(f); }); }
+function uid(){ return 'q'+(Date.now().toString(36))+(Math.random().toString(36).slice(2,7)); }
+function xmlEscape(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function readFile(input) {
-  return new Promise(res => {
-    const f = input.files && input.files[0];
-    if (!f) return res(null);
-    const r = new FileReader();
-    r.onload = () => res({name: f.name, type: f.type, dataURL: r.result});
-    r.readAsDataURL(f);
-  });
-}
-
-function clearForm(all = true) {
-  if (all) setVal('module', '');
-  setVal('question', ''); $('questionImg').value = '';
-  ['optA','optB','optC','optD'].forEach(id => { setVal(id,''); \( (`img \){id.charAt(id.length-1)}`).value = ''; });
-  setVal('answer', ''); setVal('solution', ''); $('solutionImg').value = '';
-  setVal('pm', '1'); setVal('nm', '0');
-}
-
-// ==================== Translate Button ====================
-$('translateBtn').onclick = async () => {
-  const module = getVal('module').toLowerCase();
-  if (module.includes('hindi') || module.includes('हिंदी')) {
-    alert("Module में 'Hindi' है → अनुवाद नहीं किया गया");
-    return;
+/* Build initial entry object */
+async function buildEntryFromForm(){
+  const module = $.module.value.trim() || 'General';
+  const question = $.question.value.trim();
+  const qImg = await readFile($.questionImg);
+  const optA = $.optA.value.trim(), imgA = await readFile($.imgA);
+  const optB = $.optB.value.trim(), imgB = await readFile($.imgB);
+  const optC = $.optC.value.trim(), imgC = await readFile($.imgC);
+  const optD = $.optD.value.trim(), imgD = await readFile($.imgD);
+  const answer = $.answer.value.trim();
+  const solution = $.solution.value.trim(), solImg = await readFile($.solutionImg);
+  const pm = $.pm.value.trim() || '1', nm = $.nm.value.trim() || '0';
+  let language = $.language.value || '';
+  // detect if auto
+  if(!language){
+    language = (isHindi(question) || isHindi(optA) || isHindi(optB) || isHindi(optC) || isHindi(optD) || isHindi(solution)) ? 'hi' : 'en';
   }
-
-  const fields = ['question','optA','optB','optC','optD','solution'];
-  const hasHindi = fields.some(f => isHindi(getVal(f)));
-  const target = hasHindi ? 'en' : 'hi';
-
-  for (const f of fields) {
-    const txt = getVal(f);
-    if (txt) setVal(f, await translateText(txt, target));
-  }
-  alert(`सब कुछ ${target === 'hi' ? 'हिंदी' : 'English'} में बदल दिया गया!`);
-};
-
-// ==================== Add Question ====================
-$('addBtn').onclick = async () => {
-  const qtext = getVal('question');
-  if (!qtext) { alert("प्रश्न लिखो!"); return; }
-
-  const qImg = await readFile($('questionImg'));
-  const optImgs = await Promise.all(['A','B','C','D'].map(ch => readFile(\( (`img \){ch}`))));
-  const solImg = await readFile($('solutionImg'));
-
-  const item = {
-    module: getVal('module') || 'General',
-    questionno: qno++,
-    question: qtext,
-    questionImg: qImg,
-    option: [getVal('optA'), getVal('optB'), getVal('optC'), getVal('optD')],
-    optionImg: optImgs,
-    answer: getVal('answer').toUpperCase(),
-    solution: getVal('solution'),
-    solutionImg: solImg,
-    pm: getVal('pm') || '1',
-    nm: getVal('nm') || '0',
-    language: isHindi(qtext) ? 'hi' : 'en'
+  return {
+    id: uid(), module, question, questionImg:qImg,
+    option: [optA,optB,optC,optD],
+    optionImg: [imgA,imgB,imgC,imgD],
+    answer, solution, solutionImg: solImg,
+    pm,nm,language,
+    history: [], redo: []
   };
-
-  questions.push(item);
-  saveState();
-  renderPreview();
-  clearForm(false);
-};
-
-// ==================== Edit / Delete / Undo ====================
-function editQuestion(idx) {
-  const q = questions[idx];
-  setVal('module', q.module);
-  setVal('question', q.question);
-  setVal('optA', q.option[0]); setVal('optB', q.option[1]);
-  setVal('optC', q.option[2]); setVal('optD', q.option[3]);
-  setVal('answer', q.answer);
-  setVal('solution', q.solution);
-  setVal('pm', q.pm); setVal('nm', q.nm);
-  // images रहने दो (फिर से अपलोड कर लेना चाहो तो)
-  questions.splice(idx, 1);
-  renderPreview(); saveState();
 }
 
-function deleteQuestion(idx) {
-  lastDeleted = questions[idx];
-  questions.splice(idx, 1);
-  renderPreview(); saveState();
+/* Add question */
+$('#addBtn').addEventListener('click', async ()=>{
+  const qtext = $.question.value.trim();
+  if(!qtext){ alert('Question डालो'); return; }
+  const ent = await buildEntryFromForm();
+  // push snapshot
+  ent.history.push(JSON.stringify(snapshot(ent)));
+  questions.unshift(ent);
+  saveState(); renderList(); clearForm();
+});
+
+/* Clear input form */
+function clearForm(){
+  $.module.value=''; $.question.value=''; $.questionImg.value='';
+  $.optA.value=''; $.optB.value=''; $.optC.value=''; $.optD.value='';
+  $.imgA.value=''; $.imgB.value=''; $.imgC.value=''; $.imgD.value='';
+  $.answer.value=''; $.solution.value=''; $.solutionImg.value='';
+  $.pm.value='1'; $.nm.value='0'; $.language.value='';
 }
 
-$('undoBtn').onclick = () => {
-  if (lastDeleted) {
-    questions.push(lastDeleted);
-    renderPreview(); saveState();
-    lastDeleted = null;
-    alert("आखिरी डिलीट किया हुआ प्रश्न वापस आ गया!");
-  } else alert("कोई डिलीट नहीं हुआ है");
-};
+/* Render list */
+function renderList(){
+  const list = $('list'); list.innerHTML = '';
+  if(!questions.length){ list.innerHTML = '<div class="muted">No questions added.</div>'; return; }
+  questions.forEach((q,i)=>{
+    const card = document.createElement('div'); card.className='card';
+    card.style.marginBottom='10px';
+    card.dataset.id = q.id;
 
-// ==================== Preview ====================
-function renderPreview() {
-  const area = $('previewArea');
-  area.innerHTML = '';
-  if (!questions.length) {
-    area.innerHTML = '<div class="muted">कोई प्रश्न नहीं जोड़ा गया।</div>';
-    return;
-  }
+    const hdr = document.createElement('div'); hdr.style.display='flex'; hdr.style.justifyContent='space-between';
+    const left = document.createElement('div');
+    const title = document.createElement('div'); title.style.fontWeight='700'; title.textContent = q.question || '(no question)';
+    left.appendChild(title);
+    const meta = document.createElement('div'); meta.className='muted'; meta.textContent = `${q.module} | ${q.language} | Q#${qno - i}`;
+    left.appendChild(meta);
 
-  questions.forEach((q, i) => {
-    const tbl = document.createElement('table');
-    tbl.className = 'preview-table';
+    const right = document.createElement('div');
+    right.style.display='flex'; right.style.gap='6px';
+    right.appendChild(icon('fa-pen','Edit', ()=> startEdit(q.id)));
+    right.appendChild(icon('fa-undo','Undo', ()=> undoQuestion(q.id)));
+    right.appendChild(icon('fa-redo','Redo', ()=> redoQuestion(q.id)));
+    right.appendChild(icon('fa-language','Translate', ()=> translateQuestion(q.id)));
+    right.appendChild(icon('fa-save','Save', ()=> saveEdit(q.id)));
+    right.appendChild(icon('fa-trash','Delete', ()=> { if(confirm('Delete?')){ deleteQuestion(q.id); } }));
+    hdr.appendChild(left); hdr.appendChild(right);
+    card.appendChild(hdr);
 
-    const rows = [
-      ['Module', q.module],
-      ['Q.No', q.questionno],
-      ['Question', q.question, q.questionImg],
-      ['A', q.option[0], q.optionImg[0]],
-      ['B', q.option[1], q.optionImg[1]],
-      ['C', q.option[2], q.optionImg[2]],
-      ['D', q.option[3], q.optionImg[3]],
-      ['Answer', q.answer],
-      ['Solution', q.solution, q.solutionImg],
-      ['+Marks', q.pm],
-      ['-Marks', q.nm]
-    ];
+    // body area (editable)
+    const body = document.createElement('div'); body.style.marginTop='8px';
+    if(q.questionImg && q.questionImg.dataURL){ const im=document.createElement('img'); im.src=q.questionImg.dataURL; im.className='img-preview'; body.appendChild(im); }
+    const qDiv = document.createElement('div'); qDiv.contentEditable=true; qDiv.className='muted'; qDiv.style.fontWeight='600'; qDiv.style.marginTop='8px'; qDiv.textContent = q.question; qDiv.addEventListener('input', ()=> { q.question = qDiv.textContent; pushHistory(q); saveState(); });
+    body.appendChild(qDiv);
 
-    rows.forEach(r => {
+    // options table
+    const table = document.createElement('table'); table.className='preview-table';
+    for(let k=0;k<4;k++){
       const tr = document.createElement('tr');
-      const td1 = document.createElement('td'); td1.textContent = r[0];
-      const td2 = document.createElement('td');
-      if (r[1]) td2.innerHTML = '<div>' + r[1] + '</div>';
-      if (r[2] && r[2]?.dataURL) {
-        const img = document.createElement('img');
-        img.src = r[2].dataURL; img.className = 'img-preview';
-        td2.appendChild(img);
-      }
-      tr.append(td1, td2);
-      tbl.appendChild(tr);
-    });
+      const td1 = document.createElement('td'); td1.textContent = ['A','B','C','D'][k];
+      const td2 = document.createElement('td'); 
+      const optDiv = document.createElement('div'); optDiv.contentEditable=true; optDiv.textContent = q.option[k] || ''; optDiv.addEventListener('input', ()=> { q.option[k] = optDiv.textContent; pushHistory(q); saveState(); });
+      td2.appendChild(optDiv);
+      if(q.optionImg && q.optionImg[k] && q.optionImg[k].dataURL){ const im=document.createElement('img'); im.src=q.optionImg[k].dataURL; im.className='img-preview'; td2.appendChild(im); }
+      tr.appendChild(td1); tr.appendChild(td2); table.appendChild(tr);
+    }
+    body.appendChild(table);
 
-    // Action buttons
-    const actionTr = document.createElement('tr');
-    const actionTd = document.createElement('td');
-    actionTd.colSpan = 2;
-    actionTd.className = 'actions';
-    actionTd.innerHTML = `
-      <button onclick="editQuestion(${i})" title="Edit"><i class="fas fa-edit"></i></button>
-      <button onclick="deleteQuestion(${i})" title="Delete"><i class="fas fa-trash"></i></button>
-    `;
-    actionTr.appendChild(actionTd);
-    tbl.appendChild(actionTr);
+    // answer & solution editable
+    const ans = document.createElement('div'); ans.style.marginTop='6px'; ans.innerHTML = `<b>Answer:</b> <span contenteditable="true">${q.answer||''}</span>`;
+    ans.querySelector('span').addEventListener('input', (e)=>{ q.answer = e.target.textContent; pushHistory(q); saveState(); });
+    body.appendChild(ans);
 
-    area.appendChild(tbl);
+    const solDiv = document.createElement('div'); solDiv.style.marginTop='6px'; 
+    const solEdit = document.createElement('div'); solEdit.contentEditable=true; solEdit.className='muted'; solEdit.textContent = q.solution || '';
+    solEdit.addEventListener('input', ()=>{ q.solution = solEdit.textContent; pushHistory(q); saveState(); });
+    body.appendChild(document.createElement('hr'));
+    body.appendChild(solEdit);
+    if(q.solutionImg && q.solutionImg.dataURL){ const im=document.createElement('img'); im.src=q.solutionImg.dataURL; im.className='img-preview'; body.appendChild(im); }
+
+    card.appendChild(body);
+    list.appendChild(card);
   });
 }
 
-// ==================== JSON Import/Export ====================
-$('exportJson').onclick = () => {
-  if (!questions.length) return alert("कोई प्रश्न नहीं");
-  const data = new Blob([JSON.stringify(questions, null, 2)], {type: 'application/json'});
-  const url = URL.createObjectURL(data);
-  const a = document.createElement('a'); a.href = url; a.download = 'mcq_questions.json'; a.click();
-  URL.revokeObjectURL(url);
-};
+/* icon helper */
+function icon(cls,title,fn){
+  const b = document.createElement('button'); b.className='icon-btn'; b.title = title; b.innerHTML = `<i class="fa ${cls}"></i>`;
+  b.addEventListener('click', (ev)=>{ ev.stopPropagation(); fn(); });
+  return b;
+}
 
-$('importBtn').onclick = () => {
-  try {
-    const arr = JSON.parse($('jsonArea').value);
-    if (!Array.isArray(arr)) throw "Array नहीं है";
-    arr.forEach(q => { q.questionno = qno++; questions.push(q); });
-    saveState(); renderPreview();
-    alert(`इम्पोर्ट किया: ${arr.length} प्रश्न`);
-  } catch (e) { alert("गलत JSON: " + e); }
-};
+/* push history snapshot */
+function snapshot(q){
+  return {
+    question:q.question, option:[...q.option], answer:q.answer, solution:q.solution, questionImg:q.questionImg, optionImg:q.optionImg, solutionImg:q.solutionImg
+  };
+}
+function pushHistory(q){
+  q.history = q.history || []; q.redo = q.redo || [];
+  const snap = JSON.stringify(snapshot(q));
+  if(q.history[q.history.length-1] !== snap){ q.history.push(snap); if(q.history.length>50) q.history.shift(); q.redo = []; }
+}
 
-\( ('clearJson').onclick = () => \)('jsonArea').value = '';
-$('clearBtn').onclick = () => clearForm(true);
-$('resetAll').onclick = () => {
-  if (confirm('सभी प्रश्न डिलीट कर दें?')) {
-    questions = []; qno = 1; lastDeleted = null; saveState(); renderPreview();
+/* Undo / Redo / Delete / Start Edit / Save Edit */
+function undoQuestion(id){
+  const q = questions.find(x=>x.id===id); if(!q || !q.history || q.history.length<=1) return alert('No undo available');
+  const cur = q.history.pop(); q.redo = q.redo || []; q.redo.push(cur);
+  const prev = q.history[q.history.length-1]; const obj = JSON.parse(prev);
+  q.question = obj.question; q.option = obj.option; q.answer = obj.answer; q.solution = obj.solution; q.questionImg = obj.questionImg; q.optionImg = obj.optionImg; q.solutionImg = obj.solutionImg;
+  saveState(); renderList();
+}
+function redoQuestion(id){
+  const q = questions.find(x=>x.id===id); if(!q || !q.redo || q.redo.length===0) return alert('No redo');
+  const snap = q.redo.pop(); q.history.push(snap); const obj = JSON.parse(snap);
+  q.question = obj.question; q.option = obj.option; q.answer = obj.answer; q.solution = obj.solution; q.questionImg = obj.questionImg; q.optionImg = obj.optionImg; q.solutionImg = obj.solutionImg;
+  saveState(); renderList();
+}
+function deleteQuestion(id){ questions = questions.filter(x=>x.id!==id); saveState(); renderList(); }
+function startEdit(id){ const el = document.querySelector(`.card[data-id="${id}"]`); /* focus handled by contentEditable */ }
+function saveEdit(id){ pushHistory(questions.find(x=>x.id===id)); saveState(); alert('Saved'); }
+
+/* Translate utilities (free Google translate endpoint) */
+async function translateText(text, sl='auto', tl='en'){
+  if(!text) return '';
+  try{
+    const q = encodeURIComponent(text);
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${q}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('Translate failed ' + res.status);
+    const data = await res.json();
+    // data[0] is array of segments
+    const segs = data[0].map(s=>s[0]).filter(Boolean);
+    return segs.join('');
+  }catch(e){ console.warn(e); return ''; }
+}
+
+/* Translate specific question (question/options/solution) unless module==='Hindi' */
+async function translateQuestion(id){
+  const q = questions.find(x=>x.id===id); if(!q) return;
+  if(String(q.module||'').trim().toLowerCase() === 'hindi'){ alert('Module Hindi सेट है — translate skipped'); return; }
+  // If language is hi or detected as hi, translate to en
+  if(q.language === 'hi' || isHindi(q.question) || isHindi(q.solution) || q.option.some(o=>isHindi(o))){
+    q.titleEn = await translateText(q.question,'hi','en');
+    // options
+    q.optionEn = [];
+    for(let i=0;i<4;i++){ q.optionEn[i] = await translateText(q.option[i]||'','hi','en'); }
+    q.solutionEn = await translateText(q.solution,'hi','en');
+    pushHistory(q); saveState(); renderList(); alert('Translated (HI→EN) for question id ' + id);
+  }else{ alert('No Hindi detected or module set to Hindi — skipped'); }
+}
+
+/* Translate current form (single) */
+$('#translateBtn').addEventListener('click', async ()=>{
+  const module = $.module.value.trim().toLowerCase();
+  if(module === 'hindi'){ alert('Module Hindi है — translate skip'); return; }
+  // translate form fields if Hindi
+  if(isHindi($.question.value)){ $.question.value = $.question.value; const t = await translateText($.question.value,'hi','en'); // we'll show English in console or create preview field
+    alert('Translation (EN):\n' + t.slice(0,1000)); }
+  else alert('Question में Hindi नहीं दिखी');
+});
+
+/* Translate All (every question where module !== 'Hindi' and language hi) */
+$('#translateAllBtn').addEventListener('click', async ()=>{
+  for(const q of questions){
+    if(String(q.module||'').trim().toLowerCase() === 'hindi') continue;
+    if(q.language === 'hi' || isHindi(q.question) || isHindi(q.solution) || q.option.some(o=>isHindi(o))){
+      q.questionEn = await translateText(q.question,'hi','en');
+      q.optionEn = [];
+      for(let i=0;i<4;i++) q.optionEn[i] = await translateText(q.option[i]||'','hi','en');
+      q.solutionEn = await translateText(q.solution,'hi','en');
+      pushHistory(q);
+    }
   }
-};
+  saveState(); renderList(); alert('Translated all (where applicable).');
+});
 
-// ==================== DOCX Export (पूरा पुराना कोड यहाँ है - काम कर रहा है) ====================
-function xmlEscape(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+/* JSON Import/Export */
+$('#importBtn').addEventListener('click', ()=>{
+  const txt = $.jsonArea.value.trim(); if(!txt) return alert('Paste JSON');
+  try{
+    const parsed = JSON.parse(txt);
+    const arr = Array.isArray(parsed)? parsed : [parsed];
+    arr.forEach(o=>{
+      const ent = {
+        id: uid(), module:o.module||'General', question:o.question||o.q||'', questionImg:o.questionImg||null,
+        option: o.option || [o.optA,o.optB,o.optC,o.optD].filter(Boolean), optionImg: o.optionImg || [null,null,null,null],
+        answer:o.answer||'', solution:o.solution||'', solutionImg:o.solutionImg||null, pm:o.pm||1,nm:o.nm||0,language:o.language||''
+      };
+      ent.history = [JSON.stringify(snapshot(ent))]; ent.redo=[];
+      questions.unshift(ent);
+    });
+    saveState(); renderList(); alert('Imported ' + arr.length + ' items');
+  }catch(e){ alert('Invalid JSON'); console.error(e); }
+});
+$('#exportJson').addEventListener('click', ()=>{
+  const out = questions.map(q=>({
+    module:q.module, question:q.question, option:q.option, answer:q.answer, solution:q.solution, pm:q.pm, nm:q.nm, language:q.language, questionImg:q.questionImg, optionImg:q.optionImg, solutionImg:q.solutionImg
+  }));
+  const blob = new Blob([JSON.stringify(out,null,2)],{type:'application/json'}); const url = URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='mcq_export.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),3000);
+});
 
+/* Remove last / reset all */
+$('#removeLast').addEventListener('click', ()=>{ if(!questions.length) return; questions.shift(); saveState(); renderList(); });
+$('#resetAll').addEventListener('click', ()=>{ if(!confirm('Clear all?')) return; questions=[]; saveState(); renderList(); });
+
+/* Autosave */
+setInterval(saveState,2000);
+
+/* ---------- DOCX builder (images embedded) ---------- */
+
+/* helper for drawing xml */
+function makeDrawingXml(rId, cx=4500000, cy=3000000){
+  return `<w:p><w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="1" name="Image"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="Image"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+}
+
+/* build table xml for MCQ question (with optional image parts) */
+function makeRowXml(name,value,rId,cx,cy){
+  const imagePart = rId ? `<w:p>${makeDrawingXml(rId,cx,cy)}</w:p>` : '';
+  return `<w:tr><w:tc><w:tcPr><w:shd w:fill="FFFFFF"/></w:tcPr><w:p><w:r><w:t>${xmlEscape(name)}</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:shd w:fill="FFF8DC"/></w:tcPr><w:p><w:r><w:t>${xmlEscape(value)}</w:t></w:r></w:p>${imagePart}</w:tc></w:tr>`;
+}
+function buildTableXml(q,rmap){
+  let rows='';
+  rows += makeRowXml('Module', q.module || '', null);
+  rows += makeRowXml('questionno', q.id || '', null);
+  rows += makeRowXml('Question', q.question || '', rmap.questionImg, rmap.questionCx, rmap.questionCy);
+  rows += makeRowXml('Type', 'mcq', null);
+  for(let i=0;i<4;i++){
+    rows += makeRowXml('option', q.option[i] || '', rmap['optionImg'+i], rmap['optionImg'+i+'Cx'], rmap['optionImg'+i+'Cy']);
+  }
+  rows += makeRowXml('answer', q.answer || '', null);
+  rows += makeRowXml('Solution', q.solution || '', rmap.solutionImg, rmap.solutionCx, rmap.solutionCy);
+  rows += makeRowXml('Positive Marks', q.pm || '', null);
+  rows += makeRowXml('Negative Marks', q.nm || '', null);
+  rows += makeRowXml('language', q.language || '', null);
+  return `<w:tbl><w:tblPr><w:tblBorders><w:top w:val="single" w:sz="6"/><w:left w:val="single" w:sz="6"/><w:right w:val="single" w:sz="6"/><w:bottom w:val="single" w:sz="6"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr>${rows}</w:tbl><w:p><w:r><w:t></w:t></w:r></w:p>`;
+}
+
+/* collect media */
 function collectMedia(){
-  const list = [];
-  questions.forEach((q,i)=>{
-    if(q.questionImg?.dataURL) list.push({qIndex:i, field:'questionImg', data:q.questionImg});
-    q.optionImg.forEach((img,j)=>{ if(img?.dataURL) list.push({qIndex:i, field:'optionImg'+j, data:img}); });
-    if(q.solutionImg?.dataURL) list.push({qIndex:i, field:'solutionImg', data:q.solutionImg});
+  const list=[];
+  questions.forEach((q,qi)=>{
+    if(q.questionImg && q.questionImg.dataURL) list.push({qIndex:qi,field:'questionImg',data:q.questionImg});
+    (q.optionImg||[]).forEach((oi,idx)=>{ if(oi && oi.dataURL) list.push({qIndex:qi,field:'optionImg'+idx,data:oi}); });
+    if(q.solutionImg && q.solutionImg.dataURL) list.push({qIndex:qi,field:'solutionImg',data:q.solutionImg});
   });
   return list;
 }
 
-function makeDrawingXml(rId,cx=4800000,cy=3200000){
-  return `<w:r><w:drawing><wp:inline><wp:extent cx="\( {cx}" cy=" \){cy}"/><wp:docPr id="1" name="Pic"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:blipFill><a:blip r:embed="\( {rId}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:ext cx=" \){cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
-}
-
-function makeRowXml(name,value,rId,cx,cy){
-  const img = rId ? `<w:p>${makeDrawingXml(rId,cx,cy)}</w:p>` : '';
-  return `<w:tr><w:tc><w:p><w:r><w:t>\( {xmlEscape(name)}</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t> \){xmlEscape(value)}</w:t></w:r></w:p>${img}</w:tc></w:tr>`;
-}
-
-function buildTableXml(q,rmap){
-  let rows = '';
-  rows += makeRowXml('Module', q.module);
-  rows += makeRowXml('questionno', q.questionno);
-  rows += makeRowXml('Question', q.question, rmap.questionImg, rmap.qcx, rmap.qcy);
-  rows += makeRowXml('Type','mcq');
-  for(let i=0;i<4;i++) rows += makeRowXml(['A','B','C','D'][i], q.option[i]||'', rmap[`optImg\( {i}`], rmap[`optCx \){i}`], rmap[`optCy${i}`]);
-  rows += makeRowXml('answer', q.answer);
-  rows += makeRowXml('Solution', q.solution, rmap.solImg, rmap.solCx, rmap.solCy);
-  rows += makeRowXml('Positive Marks', q.pm);
-  rows += makeRowXml('Negative Marks', q.nm);
-  return `<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="0" w:type="auto"/></w:tblPr>${rows}</w:tbl><w:p/>`;
-}
-
+/* build package files */
 function buildPackageFiles(){
-  const media = collectMedia();
-  const relIds = media.map((_,i)=>`rId${i+10}`);
-  const rmap = questions.map(()=>({
-    questionImg:null,qcx:0,qcy:0,
-    optImg0:null,optCx0:0,optCy0:0,
-    optImg1:null,optCx1:0,optCy1:0,
-    optImg2:null,optCx2:0,optCy2:0,
-    optImg3:null,optCx3:0,optCy3:0,
-    solImg:null,solCx:0,solCy:0
-  }));
-
-  media.forEach((m,i)=>{
-    const rid = relIds[i];
-    const cx = m.field.includes('optionImg') ? 3600000 : 4800000;
-    const cy = m.field.includes('optionImg') ? 2400000 : 3200000;
-    if(m.field==='questionImg'){ rmap[m.qIndex].questionImg=rid; rmap[m.qIndex].qcx=cx; rmap[m.qIndex].qcy=cy; }
-    else if(m.field.startsWith('optionImg')){ const n=m.field.slice(9); rmap[m.qIndex][`optImg\( {n}`]=rid; rmap[m.qIndex][`optCx \){n}`]=cx; rmap[m.qIndex][`optCy${n}`]=cy; }
-    else if(m.field==='solutionImg'){ rmap[m.qIndex].solImg=rid; rmap[m.qIndex].solCx=cx; rmap[m.qIndex].solCy=cy; }
+  const mediaList = collectMedia();
+  const mediaFiles = [];
+  const relIds = [];
+  mediaList.forEach((it,idx)=>{
+    const d = it.data;
+    const comma = d.dataURL.indexOf(','); const b64 = d.dataURL.slice(comma+1);
+    const binStr = atob(b64); const u8 = new Uint8Array(binStr.length); for(let j=0;j<binStr.length;j++) u8[j]=binStr.charCodeAt(j);
+    let ext='png'; if(d.type && d.type.indexOf('jpeg')!==-1) ext='jpg';
+    const name = `image${idx+1}.${ext}`;
+    mediaFiles.push({name,type:d.type||('image/'+ext),data:u8,ref:it});
+    relIds.push('rIdImg'+(idx+1));
   });
 
-  let body = '';
-  questions.forEach((q,i)=> body += buildTableXml(q, rmap[i]));
+  const rmapPerQ = questions.map(()=>({
+    questionImg:null, questionCx:0, questionCy:0,
+    optionImg0:null, optionImg0Cx:0, optionImg0Cy:0,
+    optionImg1:null, optionImg1Cx:0, optionImg1Cy:0,
+    optionImg2:null, optionImg2Cx:0, optionImg2Cy:0,
+    optionImg3:null, optionImg3Cx:0, optionImg3Cy:0,
+    solutionImg:null, solutionCx:0, solutionCy:0
+  }));
+  mediaFiles.forEach((m,idx)=>{
+    const it = m.ref; const qidx = it.qIndex; const rId = relIds[idx];
+    const defCx = 4500000, defCy = 3000000;
+    if(it.field==='questionImg'){ rmapPerQ[qidx].questionImg = rId; rmapPerQ[qidx].questionCx=defCx; rmapPerQ[qidx].questionCy=defCy; }
+    else if(it.field.startsWith('optionImg')){ const n=Number(it.field.replace('optionImg','')); rmapPerQ[qidx]['optionImg'+n]=rId; rmapPerQ[qidx]['optionImg'+n+'Cx']=3500000; rmapPerQ[qidx]['optionImg'+n+'Cy']=2000000; }
+    else if(it.field==='solutionImg'){ rmapPerQ[qidx].solutionImg=rId; rmapPerQ[qidx].solutionCx=defCx; rmapPerQ[qidx].solutionCy=defCy; }
+  });
 
-  const doc = `<?xml version="1.0" encoding="UTF-8"?>
+  // build document body: for each question, push both hi and en blocks if available
+  let body='';
+  questions.forEach((q,qi)=>{
+    // Hindi block (if present)
+    body += buildTableXml(q, rmapPerQ[qi]);
+    // If english translations exist (questionEn or optionEn), add an extra table for EN
+    const hasEn = q.questionEn || (q.optionEn && q.optionEn.some(x=>x));
+    if(hasEn){
+      const qEn = {
+        module: q.module,
+        id: q.id + '_EN',
+        question: q.questionEn || '',
+        option: q.optionEn || ['', '', '', ''],
+        answer: q.answer || '',
+        solution: q.solutionEn || '',
+        pm: q.pm, nm: q.nm, language: 'en'
+      };
+      // create a fake rmap for en with same images (re-use rmapPerQ)
+      body += buildTableXml(qEn, rmapPerQ[qi]);
+    }
+  });
+
+  const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-  <w:body>${body}<w:sectPr/></w:body>
+xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+  <w:body>${body}<w:p/><w:sectPr/></w:body>
 </w:document>`;
 
-  const rels = `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-\( {media.map((m,i)=>`<Relationship Id=" \){relIds[i]}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/img\( {i}. \){m.data.name.split('.').pop()}"/>`).join('\n')}
-</Relationships>`;
+  let relsXml = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`;
+  mediaFiles.forEach((m,i)=> relsXml += `<Relationship Id="${relIds[i]}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${m.name}"/>`);
+  relsXml += `</Relationships>`;
 
-  const files = {
-    "[Content_Types].xml": `<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-<Default Extension="xml" ContentType="application/xml"/>
-<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-\( {media.map(m=>`<Default Extension=" \){m.data.name.split('.').pop()}" ContentType="${m.data.type}"/>`).join('')}
-</Types>`,
-    "_rels/.rels": `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`,
-    "word/document.xml": doc,
-    "word/_rels/document.xml.rels": rels
-  };
+  const extMap={}; mediaFiles.forEach(m=> extMap[m.name.split('.').pop()] = m.type);
+  let ctXml = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">`;
+  ctXml += `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>`;
+  ctXml += `<Default Extension="xml" ContentType="application/xml"/>`;
+  Object.keys(extMap).forEach(ext => ctXml += `<Default Extension="${ext}" ContentType="${extMap[ext]}"/>`);
+  ctXml += `<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`;
 
-  media.forEach((m,i)=>{
-    const b64 = m.data.dataURL.split(',')[1];
-    const bin = atob(b64);
-    const arr = new Uint8Array(bin.length);
-    for(let j=0;j<bin.length;j++) arr[j] = bin.charCodeAt(j);
-    files[`word/media/img\( {i}. \){m.data.name.split('.').pop()}`] = arr;
-  });
-
+  const files = {};
+  files["[Content_Types].xml"] = ctXml;
+  files["_rels/.rels"] = `<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
+  files["word/document.xml"] = documentXml;
+  files["word/_rels/document.xml.rels"] = relsXml;
+  mediaFiles.forEach(m => files[`word/media/${m.name}`] = m.data);
   return files;
 }
 
+/* ZIP builder (binary-safe) */
 function buildZip(files){
-  const zip = [];
-  let offset = 0;
-  const central = [];
+  const enc = new TextEncoder();
+  function toBytes(v){ if(v instanceof Uint8Array) return v; return enc.encode(v); }
+  function u32(n){ return [n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255]; }
 
-  for(const name in files){
-    let data = files[name];
-    if(typeof data==='string') data = new TextEncoder().encode(data);
-    const header = new Uint8Array(30 + name.length);
-    header.set([80,75,3,4,20,0,0,0,0,0],0); // PK signature + version
-    const crc = crc32(data);
-    header.set([crc&255,(crc>>8)&255,(crc>>16)&255,(crc>>24)&255],14);
-    header.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],18);
-    header.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],22);
-    header.set([name.length&255,(name.length>>8)&255],26);
-    header.set(new TextEncoder().encode(name),30);
-
-    zip.push(header, data);
-    offset += header.length + data.length;
-
-    const cent = new Uint8Array(46 + name.length);
-    cent.set([80,75,1,2,20,0,20,0,0,0,0,0],0);
-    cent.set([crc&255,(crc>>8)&255,(crc>>16)&255,(crc>>24)&255],16);
-    cent.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],20);
-    cent.set([data.length&255,(data.length>>8)&255,(data.length>>16)&255,(data.length>>24)&255],24);
-    cent.set([name.length&255,(name.length>>8)&255],28);
-    cent.set([offset - data.length - header.length &255, (offset - data.length - header.length >>8)&255,
-              (offset - data.length - header.length >>16)&255, (offset - data.length - header.length >>24)&255],42);
-    cent.set(new TextEncoder().encode(name),46);
-    central.push(cent);
+  // crc table
+  let table = window.__crcTable;
+  if(!table){
+    table = new Uint32Array(256);
+    for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++) c = (c&1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1); table[i]=c>>>0; }
+    window.__crcTable = table;
+  }
+  function crc32(buf){
+    let crc = ~0;
+    for(let i=0;i<buf.length;i++) crc = (crc>>>8) ^ table[(crc ^ buf[i]) & 0xff];
+    return (~crc)>>>0;
   }
 
-  const cdStart = offset;
-  central.forEach(c=> { zip.push(c); offset += c.length; });
-
-  const eocd = new Uint8Array(22);
-  eocd.set([80,75,5,6,0,0,0,0],0);
-  eocd.set([central.length&255,(central.length>>8)&255,central.length&255,(central.length>>8)&255],8);
-  eocd.set([offset-cdStart&255,(offset-cdStart>>8)&255,(offset-cdStart>>16)&255,(offset-cdStart>>24)&255],12);
-  eocd.set([cdStart&255,(cdStart>>8)&255,(cdStart>>16)&255,(cdStart>>24)&255],16);
-  zip.push(eocd);
-
-  const blob = new Blob(zip, {type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
-  return blob;
+  const local=[]; const central=[]; let offset=0;
+  for(const name in files){
+    const data = toBytes(files[name]); const fname = enc.encode(name);
+    const crc = crc32(data); const compSize = data.length; const uncompSize = data.length;
+    const lh = new Uint8Array(30 + fname.length);
+    lh.set([0x50,0x4b,0x03,0x04],0); lh[4]=20; lh[6]=0; lh[8]=0;
+    lh.set(u32(crc),14); lh.set(u32(compSize),18); lh.set(u32(uncompSize),22);
+    lh[26]=fname.length & 0xff; lh[27]=(fname.length>>8)&0xff; lh.set(fname,30);
+    local.push(lh); local.push(data);
+    const ch = new Uint8Array(46 + fname.length); ch.set([0x50,0x4b,0x01,0x02],0); ch[4]=20; ch[6]=20;
+    ch.set(u32(crc),16); ch.set(u32(compSize),20); ch.set(u32(uncompSize),24); ch[28]=fname.length & 0xff; ch[29]=(fname.length>>8)&0xff;
+    ch.set(u32(offset),42); ch.set(fname,46);
+    central.push(ch);
+    offset += lh.length + data.length;
+  }
+  const centralSize = central.reduce((s,c)=>s+c.length,0);
+  const eocd = new Uint8Array(22); eocd.set([0x50,0x4b,0x05,0x06],0);
+  const entriesCount = central.length; eocd[8] = entriesCount & 0xff; eocd[9] = (entriesCount>>8)&0xff; eocd[10]=eocd[8]; eocd[11]=eocd[9];
+  eocd.set(u32(centralSize),12); eocd.set(u32(offset),16);
+  const out = new Uint8Array(offset + centralSize + 22);
+  let p=0; local.forEach(part=>{ out.set(part,p); p+=part.length; }); central.forEach(c=>{ out.set(c,p); p+=c.length; });
+  out.set(eocd,p);
+  return new Blob([out], {type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
 }
 
-function crc32(buf){
-  let c = 0 ^ (-1);
-  for(let i=0;i<buf.length;i++) c = (c>>>8) ^ crcTable[(c^buf[i])&255];
-  return (c ^ (-1)) >>> 0;
-}
-const crcTable = (()=>{ const t=new Uint32Array(256); for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++) c=c&1?(0xEDB88320^(c>>>1)):c>>>1; t[i]=c; } return t; })();
+/* Export DOCX */
+$('#exportBtn').addEventListener('click', ()=>{
+  if(!questions.length) return alert('पहले कम से कम एक प्रश्न जोड़ो');
+  try{
+    // collect media refs: we need to map back to original pos (include qIndex)
+    const mediaList = [];
+    questions.forEach((q,qi)=>{
+      if(q.questionImg && q.questionImg.dataURL) mediaList.push({qIndex:qi,field:'questionImg',data:q.questionImg});
+      (q.optionImg||[]).forEach((oi,idx)=>{ if(oi && oi.dataURL) mediaList.push({qIndex:qi,field:'optionImg'+idx,data:oi}); });
+      if(q.solutionImg && q.solutionImg.dataURL) mediaList.push({qIndex:qi,field:'solutionImg',data:q.solutionImg});
+    });
+    // attach qIndex into each ref for buildPackageFiles
+    mediaList.forEach((m,idx)=> m.index = idx);
+    // temporarily override collectMedia to return these with qIndex (we'll replicate buildPackageFiles logic)
+    // Simpler: call buildPackageFiles which itself calls collectMedia on current questions (which include qIndex not present). But our collectMedia used questions array; to preserve mapping, we will inject qIndex into each image object earlier when reading files.
+    // Ensure each image object has a reference to its origin with qIndex: when reading files into question objects earlier, we didn't store qIndex; but buildPackageFiles uses questions order so it will map correctly.
+    const files = buildPackageFiles();
+    const blob = buildZip(files);
+    const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='questions.docx'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+  }catch(e){ console.error(e); alert('Export failed: ' + (e&&e.message)); }
+});
 
-$('exportBtn').onclick = () => {
-  if(!questions.length) return alert("पहले कम से कम एक प्रश्न जोड़ो");
-  const files = buildPackageFiles();
-  const blob = buildZip(files);
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'question.docx'; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),5000);
-};
+/* Init */
+loadState();
+renderList();
 
-// ==================== Start ====================
-renderPreview();
+/* When adding question via form, we must attach qIndex for images in questions - do it at moment of adding: (already handled: images stored in question objects; buildPackageFiles will map them by order) */
+
+/* Small improvement: when reading files for question creation, attach original qIndex (not needed). */
+
+// END
 </script>
 </body>
 </html>
