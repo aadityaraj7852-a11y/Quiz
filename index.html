@@ -3,309 +3,223 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JSON → PPTX (Black Background) — MCQ Slides</title>
+<title>MCQ → Custom PPTX Exporter</title>
 
-<!-- Font Awesome for icons -->
+<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- PptxGenJS (client-side PPTX generator) -->
+<!-- PPTX Generator -->
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.9.0/dist/pptxgen.bundle.min.js"></script>
 
 <style>
-  body{font-family:Verdana,Arial,sans-serif;background:#0f172a;color:#e6eef8;margin:14px}
-  .container{max-width:1100px;margin:auto}
-  .card{background:#071129;border-radius:10px;padding:16px;border:1px solid #123;box-shadow:0 6px 18px rgba(0,0,0,0.4)}
-  h1{font-size:20px;margin:0 0 8px;color:#fff}
-  p.lead{color:#bcd3ff;margin:6px 0 12px;font-size:13px}
+  body{font-family:Arial,Helvetica,sans-serif;background:#101826;color:#eee;margin:16px}
+  .wrap{max-width:1200px;margin:auto}
+  .card{background:#192234;border-radius:10px;padding:16px;border:1px solid #223}
+  label{font-weight:700;color:#99b3ff;margin-top:6px;display:block}
+  textarea,input{width:100%;padding:8px;border-radius:6px;border:1px solid #334;background:#0d1526;color:#fff}
+  .btn{padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+  .btn-blue{background:#0b74ff;color:#fff}
+  .btn-grey{background:#333;color:#ccd}
+  .btn-red{background:#e11d48;color:#fff}
   .row{display:flex;gap:12px;flex-wrap:wrap}
   .col{flex:1;min-width:300px}
-  textarea,input{width:100%;box-sizing:border-box;border-radius:6px;padding:8px;border:1px solid #223; background:#071a2a;color:#fff}
-  label{color:#cfe0ff;font-weight:700;font-size:13px}
-  .muted{color:#9fb5d9;font-size:13px}
-  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  .btn{background:#0b74ff;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:8px}
-  .btn-ghost{background:transparent;border:1px solid #234;color:#bcd3ff}
-  .btn-danger{background:#ff3b30}
-  .preview{margin-top:12px;background:#071a2a;padding:10px;border-radius:8px;border:1px solid #123}
-  .slide-preview{background:#000;padding:12px;border-radius:6px;color:#fff;margin-bottom:12px}
-  .slide-question{font-weight:800;font-size:18px;margin-bottom:10px}
-  .slide-option{margin-left:12px;font-size:16px}
-  .footer{margin-top:12px;color:#9fb5d9;font-size:12px}
-  .small{font-size:12px;color:#9fb5d9}
-  .file-input{color:#fff}
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .preview{background:#0d1526;padding:10px;border-radius:8px;margin-top:10px;border:1px solid #333;max-height:400px;overflow:auto}
+  .slide-preview{background:#000;padding:10px;border-radius:6px;margin-bottom:12px;color:#fff}
+  .slide-q{font-size:18px;font-weight:800;margin-bottom:4px}
+  .slide-opt{font-size:16px;margin-left:8px;margin-bottom:0}
 </style>
 </head>
+
 <body>
-<div class="container">
-  <div class="card">
-    <div class="topbar">
-      <div>
-        <h1>JSON → PPTX (Black Slides) — MCQ Exporter</h1>
-        <p class="lead">हर प्रश्न एक स्लाइड पर — background काला — प्रश्न बोल्ड — options left margin — सीधे डाउनलोड करो।</p>
-      </div>
-      <div style="text-align:right">
-        <div class="muted">By Aadi's Tool • Simple & Offline</div>
-      </div>
+<div class="wrap">
+<div class="card">
+
+<h2 style="color:#fff">MCQ → PPTX Exporter (Custom Background + Colors + No Gaps)</h2>
+
+<div class="row">
+  <div class="col">
+
+    <!-- JSON Input -->
+    <label>JSON Input</label>
+    <textarea id="jsonArea" rows="12" placeholder='[{"question":"...", "option":["","","",""]}]'></textarea>
+
+    <!-- Manual Inputs -->
+    <h3 style="color:#fff;margin-top:10px">या Manual Entry</h3>
+
+    <label>Question</label>
+    <textarea id="manualQ" rows="2"></textarea>
+
+    <label>Options (4)</label>
+    <input id="opt1" placeholder="Option 1" />
+    <input id="opt2" placeholder="Option 2" />
+    <input id="opt3" placeholder="Option 3" />
+    <input id="opt4" placeholder="Option 4" />
+
+    <button id="addManual" class="btn btn-grey" style="margin-top:6px"><i class="fa fa-plus"></i> Add to List</button>
+
+    <!-- Background Image -->
+    <label style="margin-top:12px">Background Image (Optional)</label>
+    <input type="file" id="bgImg" accept="image/*">
+
+    <!-- Text Color Options -->
+    <label>Question Text Color</label>
+    <input type="color" id="qColor" value="#ffffff">
+
+    <label>Option Text Color</label>
+    <input type="color" id="optColor" value="#ffffff">
+
+    <!-- Buttons -->
+    <div style="margin-top:12px">
+      <button id="importBtn" class="btn btn-grey"><i class="fa fa-check"></i> Import JSON</button>
+      <button id="generateBtn" class="btn btn-blue"><i class="fa fa-file-powerpoint"></i> Generate PPTX</button>
+      <button id="clearBtn" class="btn btn-red"><i class="fa fa-trash"></i> Clear</button>
     </div>
+  </div>
 
-    <div class="row">
-      <div class="col">
-        <label>JSON input / edit</label>
-        <textarea id="jsonArea" rows="14" placeholder='यहाँ JSON पेस्ट/एडिट करो — array या single object दोनों चलेगा।'></textarea>
-
-        <div class="actions" style="margin-top:8px">
-          <button id="loadSample" class="btn"><i class="fa fa-file-import"></i> Load Sample</button>
-          <label class="btn btn-ghost file-input" style="padding:6px 10px">
-            <i class="fa fa-upload"></i> Upload JSON
-            <input type="file" id="jsonFile" accept=".json" style="display:none" />
-          </label>
-          <button id="importBtn" class="btn btn-ghost"><i class="fa fa-check"></i> Import & Preview</button>
-        </div>
-
-        <div class="actions" style="margin-top:8px">
-          <button id="generateBtn" class="btn"><i class="fa fa-file-powerpoint"></i> Generate PPTX</button>
-          <button id="downloadJsonBtn" class="btn btn-ghost"><i class="fa fa-download"></i> Export JSON</button>
-          <button id="clearBtn" class="btn btn-ghost"><i class="fa fa-trash"></i> Clear</button>
-          <button id="helpBtn" class="btn btn-ghost"><i class="fa fa-question-circle"></i> Help</button>
-        </div>
-
-        <div class="footer">
-          <div class="muted">नोट: JSON में English translation का कोई उपयोग नहीं किया जाता। हर स्लाइड पर केवल दिया हुआ प्रश्न और उसके options दिखेंगे।</div>
-        </div>
-      </div>
-
-      <div class="col">
-        <label>Preview</label>
-        <div id="preview" class="preview">
-          <div class="muted">Preview दिखाई देगा यहाँ — Import दबाओ।</div>
-        </div>
-
-        <div style="margin-top:8px">
-          <label class="muted">Controls</label>
-          <div class="small">• Question Bold, White — Font size और margins नीचे सेट हैं (चाहो तो बदल सकते हो)।</div>
-        </div>
-      </div>
+  <div class="col">
+    <label>Preview</label>
+    <div id="preview" class="preview">
+      <div style="color:#7aa">Preview दिखाई देगा यहाँ…</div>
     </div>
-
   </div>
 </div>
 
+</div>
+</div>
+
 <script>
-/*
-  MCQ JSON -> PPTX generator using PptxGenJS
-  - Expected JSON format (either single object or array):
-    {
-      "question": "भारत का राष्ट्रीय पशु कौन है?",
-      "option": ["शेर", "बाघ", "हाथी", "गैंडा"],
-      "answer": "B",
-      "solution": "राष्ट्रीय पशु बाघ है।"
-    }
-*/
 
 const $ = id => document.getElementById(id);
-const jsonArea = $('jsonArea');
-const preview = $('preview');
+let DATA = [];        // Final MCQ list
+let BG_DATAURL = null;
 
-const defaultSample = [
-  {
-    "question": "भारत का राष्ट्रीय पशु कौन है?",
-    "option": ["शेर", "बाघ", "हाथी", "गैंडा"],
-    "answer": "B",
-    "solution": "राष्ट्रीय पशु बाघ है।"
-  },
-  {
-    "question": "भारत की राजधानी कौन सी है?",
-    "option": ["मुम्बई", "कोलकाता", "जयपुर", "नयी दिल्ली"],
-    "answer": "D",
-    "solution": "नई दिल्ली भारत की राजधानी है।"
-  }
-];
-
-// Helper: normalize input (single object -> array)
-function parseJsonInput(txt) {
-  if(!txt || !txt.trim()) return [];
-  try{
-    const obj = JSON.parse(txt);
-    if(Array.isArray(obj)) return obj;
-    if(typeof obj === 'object') return [obj];
-    return [];
-  }catch(e){
-    alert('Invalid JSON: ' + e.message);
-    return null;
-  }
+// read file → dataURL
+function fileToDataURL(file){
+  return new Promise(res=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.readAsDataURL(file);
+  });
 }
 
-function renderPreview(dataArr){
-  preview.innerHTML = '';
-  if(!dataArr || dataArr.length===0){
-    preview.innerHTML = '<div class="muted">No items to preview.</div>';
+// PREVIEW
+function renderPreview(){
+  const box = $('preview');
+  box.innerHTML = '';
+  if(DATA.length === 0){
+    box.innerHTML = '<div style="color:#7aa">No questions.</div>';
     return;
   }
-  dataArr.forEach((q,i)=>{
-    const slide = document.createElement('div');
-    slide.className = 'slide-preview';
-    slide.style.background = '#000';
-    slide.style.color = '#fff';
-    slide.style.padding = '12px';
-    slide.style.borderRadius = '6px';
-    slide.style.marginBottom = '12px';
-    // header: Q number + question
-    const qTitle = document.createElement('div');
-    qTitle.className = 'slide-question';
-    qTitle.style.fontWeight = 800;
-    qTitle.style.fontSize = '16px';
-    qTitle.textContent = `Q${i+1}. ${q.question||''}`;
-    slide.appendChild(qTitle);
-    // options
-    const ol = document.createElement('div');
-    (q.option||[]).forEach((opt, idx)=>{
-      const optDiv = document.createElement('div');
-      optDiv.className = 'slide-option';
-      optDiv.style.marginLeft = '8px';
-      optDiv.style.marginBottom = '6px';
-      optDiv.style.fontSize = '14px';
-      optDiv.textContent = `${idx+1}. ${opt||''}`;
-      slide.appendChild(optDiv);
-    });
-    preview.appendChild(slide);
+  DATA.forEach((q,i)=>{
+    const div = document.createElement('div');
+    div.className = 'slide-preview';
+    div.innerHTML = `
+      <div class="slide-q">Q${i+1}. ${q.question}</div>
+      <div class="slide-opt">1. ${q.option[0]}</div>
+      <div class="slide-opt">2. ${q.option[1]}</div>
+      <div class="slide-opt">3. ${q.option[2]}</div>
+      <div class="slide-opt">4. ${q.option[3]}</div>
+    `;
+    box.appendChild(div);
   });
 }
 
-/* UI Buttons */
-$('loadSample').addEventListener('click', ()=> {
-  jsonArea.value = JSON.stringify(defaultSample, null, 2);
-});
-
-$('jsonFile').addEventListener('change', async (ev)=> {
-  const f = ev.target.files[0];
-  if(!f) return;
-  const txt = await f.text();
-  jsonArea.value = txt;
-});
-
-$('importBtn').addEventListener('click', ()=> {
-  const txt = jsonArea.value;
-  const parsed = parseJsonInput(txt);
-  if(parsed === null) return;
-  // sanitize: ensure options array length 4, convert /n or \\n to newline
-  const normalized = parsed.map(item => {
-    const opts = Array.isArray(item.option) ? item.option.slice(0,4) : [
-      item.optA, item.optB, item.optC, item.optD
-    ].map(x => x==null ? '' : String(x));
-    while(opts.length < 4) opts.push('');
-    return {
-      question: String(item.question || item.q || '').replace(/\\n/g,'\n').replace(/\/n/g,'\n'),
-      option: opts.map(o => String(o).replace(/\\n/g,'\n').replace(/\/n/g,'\n')),
-      answer: item.answer || item.ans || '',
-      solution: item.solution || item.solution || ''
-    };
-  });
-  // store normalized JSON back to textarea (so user can edit)
-  jsonArea.value = JSON.stringify(normalized, null, 2);
-  renderPreview(normalized);
-  // Store on window for generation
-  window._mcqData = normalized;
-});
-
-/* Export JSON (download) */
-$('downloadJsonBtn').addEventListener('click', ()=>{
-  const txt = jsonArea.value || '[]';
+// IMPORT JSON
+$('importBtn').addEventListener('click', ()=>{
   try{
-    JSON.parse(txt); // validate
-  }catch(e){ alert('Invalid JSON cannot export'); return; }
-  const blob = new Blob([txt], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'mcq_export.json'; a.click();
-  setTimeout(()=> URL.revokeObjectURL(url), 2000);
-});
-
-/* Clear */
-$('clearBtn').addEventListener('click', ()=>{
-  if(!confirm('सिर्फ JSON और preview clear करना है?')) return;
-  jsonArea.value = '';
-  preview.innerHTML = '<div class="muted">Preview दिखाई देगा यहाँ — Import दबाओ।</div>';
-  window._mcqData = [];
-});
-
-/* Help */
-$('helpBtn').addEventListener('click', ()=>{
-  alert('Use: Paste या upload JSON → Import & Preview → Generate PPTX.\nJSON format: Array of objects with fields: question (string), option (array of 4 strings), answer (optional), solution (optional).');
-});
-
-/* Generate PPTX */
-$('generateBtn').addEventListener('click', async ()=>{
-  const data = window._mcqData || parseJsonInput(jsonArea.value) || [];
-  if(data === null) return;
-  if(!data.length){ alert('कोई प्रश्न नहीं मिला — पहले Import करो या JSON डालो'); return; }
-
-  try{
-    // Create presentation
-    const pptx = new PptxGenJS();
-
-    // Global slide size optional (default 10 x 5.625 inches)
-    // We'll use default, but configure placements in inches.
-    // Styling constants
-    const bgColor = '000000'; // black
-    const questionColor = 'FFFFFF';
-    const optionColor = 'FFFFFF';
-
-    // Loop through questions and add slides
-    data.forEach((q, idx) => {
-      const slide = pptx.addSlide();
-      // set black background
-      slide.background = { color: bgColor };
-
-      // Positioning (inches)
-      // Question area top y = 0.6; left x = 0.6; width = 8.0
-      const qX = 0.6;
-      let qY = 0.5;
-      const qW = 8.0;
-
-      // Add question text bold (larger)
-      const questionText = `Q${idx+1}. ${q.question || ''}`;
-      slide.addText(questionText, {
-        x: qX, y: qY, w: qW, h: 1.2,
-        color: questionColor, fontSize: 28, bold: true, align: 'left', valign: 'top',
-        margin: 0.0
-      });
-
-      // Options: list vertically with spacing
-      let optY = qY + 1.2; // start below question
-      const optX = 0.9; // left margin a bit more
-      const optW = 8.0;
-      const optFont = 22;
-
-      const opts = q.option || [];
-      for(let i=0;i<opts.length;i++){
-        const line = `${i+1}. ${opts[i] || ''}`;
-        slide.addText(line, {
-          x: optX, y: optY, w: optW, h: 0.6,
-          color: optionColor, fontSize: optFont, bold: false, align: 'left', valign: 'top',
-          margin: 0.0
-        });
-        optY += 0.7; // vertical spacing between options
-      }
-
-      // (Optional) You can add small footer number on slide corner
-      slide.addText(`Q${idx+1}`, { x:9.1, y:5.2, color:'666666', fontSize:12, align:'right' });
-    });
-
-    // Save / download
-    const filename = 'mcq_slides';
-    await pptx.writeFile({ fileName: `${filename}.pptx` });
-    // Note: writeFile triggers download in browser
-
-  }catch(err){
-    console.error(err);
-    alert('PPTX generation failed: ' + err);
+    let j = JSON.parse($('jsonArea').value);
+    if(!Array.isArray(j)) j = [j];
+    DATA = j.map(q=>({
+      question: q.question || "",
+      option: (q.option||["","","",""]).slice(0,4)
+    }));
+    renderPreview();
+  }catch(e){
+    alert("Invalid JSON");
   }
 });
 
-/* On load: put sample */
-jsonArea.value = JSON.stringify(defaultSample, null, 2);
-window._mcqData = defaultSample;
-renderPreview(defaultSample);
+// ADD MANUAL INPUT
+$('addManual').addEventListener('click', ()=>{
+  const q = $('manualQ').value.trim();
+  if(!q){ alert("Question खाली है"); return; }
+
+  DATA.push({
+    question: q,
+    option: [
+      $('opt1').value.trim(),
+      $('opt2').value.trim(),
+      $('opt3').value.trim(),
+      $('opt4').value.trim()
+    ]
+  });
+
+  $('manualQ').value = "";
+  $('opt1').value = "";
+  $('opt2').value = "";
+  $('opt3').value = "";
+  $('opt4').value = "";
+
+  renderPreview();
+});
+
+// Background Image Upload
+$('bgImg').addEventListener('change', async (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  BG_DATAURL = await fileToDataURL(f);
+});
+
+// Generate PPTX
+$('generateBtn').addEventListener('click', async ()=>{
+  if(DATA.length === 0){
+    alert("No questions");
+    return;
+  }
+
+  let pptx = new PptxGenJS();
+  const qColor = $('qColor').value;
+  const optColor = $('optColor').value;
+
+  DATA.forEach((q, i)=>{
+    const slide = pptx.addSlide();
+
+    // Background (image or black)
+    if(BG_DATAURL)
+      slide.background = { data: BG_DATAURL };
+    else
+      slide.background = { color: "000000" };
+
+    // QUESTION
+    slide.addText(`Q${i+1}. ${q.question}`, {
+      x:0.6, y:0.5, w:8,
+      fontSize:28, bold:true, color:qColor,
+      align:"left"
+    });
+
+    // OPTIONS (NO GAP = y increment 0)
+    let y = 1.2;
+    q.option.forEach((opt, j)=>{
+      slide.addText(`${j+1}. ${opt}`, {
+        x:0.8, y:y, w:8,
+        fontSize:22, color:optColor,
+        align:"left"
+      });
+      y += 0.45;  // छोटी सी height ताकि options overlap न हों
+    });
+
+  });
+
+  await pptx.writeFile({ fileName:"mcq_custom_slides.pptx" });
+});
+
+// CLEAR
+$('clearBtn').addEventListener('click', ()=>{
+  DATA = [];
+  $('jsonArea').value="";
+  renderPreview();
+});
+
 </script>
 </body>
 </html>
