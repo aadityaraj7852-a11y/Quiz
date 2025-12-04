@@ -1,359 +1,311 @@
 <!doctype html>
-<html>
+<html lang="hi">
 <head>
-<meta charset="utf-8">
-<title>Current Affairs Builder</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>JSON → PPTX (Black Background) — MCQ Slides</title>
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- PptxGenJS (client-side PPTX generator) -->
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.9.0/dist/pptxgen.bundle.min.js"></script>
 
 <style>
-body{font-family:Arial;margin:20px;background:#f2f2f2;}
-.card{background:#fff;border:1px solid #ccc;padding:12px;margin-bottom:12px;border-radius:8px;}
-h2{margin-bottom:5px}
-input,textarea,select{width:100%;padding:7px;border:1px solid #aaa;border-radius:6px;margin:6px 0}
-.icon{cursor:pointer;font-size:17px;margin-right:10px;color:#000}
-label{font-weight:bold}
-.img-prev{max-width:260px;margin-top:8px;border:1px solid #999}
-.btn{background:#222;color:#fff;padding:7px 14px;border-radius:6px;border:0;margin-top:6px;cursor:pointer}
+  body{font-family:Verdana,Arial,sans-serif;background:#0f172a;color:#e6eef8;margin:14px}
+  .container{max-width:1100px;margin:auto}
+  .card{background:#071129;border-radius:10px;padding:16px;border:1px solid #123;box-shadow:0 6px 18px rgba(0,0,0,0.4)}
+  h1{font-size:20px;margin:0 0 8px;color:#fff}
+  p.lead{color:#bcd3ff;margin:6px 0 12px;font-size:13px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .col{flex:1;min-width:300px}
+  textarea,input{width:100%;box-sizing:border-box;border-radius:6px;padding:8px;border:1px solid #223; background:#071a2a;color:#fff}
+  label{color:#cfe0ff;font-weight:700;font-size:13px}
+  .muted{color:#9fb5d9;font-size:13px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{background:#0b74ff;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+  .btn-ghost{background:transparent;border:1px solid #234;color:#bcd3ff}
+  .btn-danger{background:#ff3b30}
+  .preview{margin-top:12px;background:#071a2a;padding:10px;border-radius:8px;border:1px solid #123}
+  .slide-preview{background:#000;padding:12px;border-radius:6px;color:#fff;margin-bottom:12px}
+  .slide-question{font-weight:800;font-size:18px;margin-bottom:10px}
+  .slide-option{margin-left:12px;font-size:16px}
+  .footer{margin-top:12px;color:#9fb5d9;font-size:12px}
+  .small{font-size:12px;color:#9fb5d9}
+  .file-input{color:#fff}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 </style>
 </head>
-
 <body>
+<div class="container">
+  <div class="card">
+    <div class="topbar">
+      <div>
+        <h1>JSON → PPTX (Black Slides) — MCQ Exporter</h1>
+        <p class="lead">हर प्रश्न एक स्लाइड पर — background काला — प्रश्न बोल्ड — options left margin — सीधे डाउनलोड करो।</p>
+      </div>
+      <div style="text-align:right">
+        <div class="muted">By Aadi's Tool • Simple & Offline</div>
+      </div>
+    </div>
 
-<h2>Current Affairs Builder (Full Version)</h2>
+    <div class="row">
+      <div class="col">
+        <label>JSON input / edit</label>
+        <textarea id="jsonArea" rows="14" placeholder='यहाँ JSON पेस्ट/एडिट करो — array या single object दोनों चलेगा।'></textarea>
 
-<label>Categories</label>
-<input id="cat">
+        <div class="actions" style="margin-top:8px">
+          <button id="loadSample" class="btn"><i class="fa fa-file-import"></i> Load Sample</button>
+          <label class="btn btn-ghost file-input" style="padding:6px 10px">
+            <i class="fa fa-upload"></i> Upload JSON
+            <input type="file" id="jsonFile" accept=".json" style="display:none" />
+          </label>
+          <button id="importBtn" class="btn btn-ghost"><i class="fa fa-check"></i> Import & Preview</button>
+        </div>
 
-<label>States</label>
-<input id="state">
+        <div class="actions" style="margin-top:8px">
+          <button id="generateBtn" class="btn"><i class="fa fa-file-powerpoint"></i> Generate PPTX</button>
+          <button id="downloadJsonBtn" class="btn btn-ghost"><i class="fa fa-download"></i> Export JSON</button>
+          <button id="clearBtn" class="btn btn-ghost"><i class="fa fa-trash"></i> Clear</button>
+          <button id="helpBtn" class="btn btn-ghost"><i class="fa fa-question-circle"></i> Help</button>
+        </div>
 
-<label>Language (hi/en)</label>
-<input id="lang">
+        <div class="footer">
+          <div class="muted">नोट: JSON में English translation का कोई उपयोग नहीं किया जाता। हर स्लाइड पर केवल दिया हुआ प्रश्न और उसके options दिखेंगे।</div>
+        </div>
+      </div>
 
-<label>Title</label>
-<textarea id="title"></textarea>
+      <div class="col">
+        <label>Preview</label>
+        <div id="preview" class="preview">
+          <div class="muted">Preview दिखाई देगा यहाँ — Import दबाओ।</div>
+        </div>
 
-<label>Banner Image</label>
-<input type="file" id="banner">
+        <div style="margin-top:8px">
+          <label class="muted">Controls</label>
+          <div class="small">• Question Bold, White — Font size और margins नीचे सेट हैं (चाहो तो बदल सकते हो)।</div>
+        </div>
+      </div>
+    </div>
 
-<label>Body</label>
-<textarea id="bodyText" rows="5"></textarea>
-
-<button class="btn" onclick="addItem()">Add Entry</button>
-
-<hr>
-
-<h3>Preview</h3>
-<div id="list"></div>
-
-<button class="btn" onclick="exportDocx()">Export DOCX</button>
+  </div>
+</div>
 
 <script>
-// STATE
-let items = [];
-function $(id){return document.getElementById(id)}
-
-function readFile(i){
-  return new Promise(res=>{
-    const f=i.files && i.files[0];
-    if(!f) return res(null);
-    const r=new FileReader();
-    r.onload=()=>res({name:f.name,type:f.type,dataURL:r.result});
-    r.readAsDataURL(f);
-  });
-}
-
-// FREE GOOGLE TRANSLATE
-async function translateFree(t){
-  let url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=hi&tl=en&dt=t&q=${encodeURIComponent(t)}`;
-  let r=await fetch(url);
-  let j=await r.json();
-  return j[0].map(x=>x[0]).join("");
-}
-
-// ADD ITEM
-async function addItem(){
-  let cat=$('cat').value.trim();
-  let st=$('state').value.trim();
-  let ln=$('lang').value.trim();
-  let tt=$('title').value.trim();
-  let bd=$('bodyText').value.trim();
-
-  if(!tt||!bd){alert("Title/Body required");return;}
-
-  let img=await readFile($('banner'));
-
-  let enTitle="", enBody="";
-
-  if(ln==="hi"){
-    enTitle = await translateFree(tt);
-    enBody = await translateFree(bd);
-  } else {
-    enTitle = tt;
-    enBody = bd;
-  }
-
-  let it={
-    id:Date.now(),
-    categories:cat,
-    states:st,
-    lang:ln,
-    title:tt,
-    banner:img,
-    body:bd,
-    enTitle,
-    enBody
-  };
-
-  items.push(it);
-  render();
-}
-
-function render(){
-  let box=$('list');
-  box.innerHTML="";
-  items.forEach(it=>{
-    let c=document.createElement("div");
-    c.className="card";
-
-    c.innerHTML=
-    `<div>
-      <b>Categories:</b> ${it.categories}<br>
-      <b>States:</b> ${it.states}<br>
-      <b>Lang:</b> ${it.lang}<br><br>
-      <b>Title:</b> ${it.title}<br><br>
-      <b>Body:</b> ${it.body.slice(0,120)}...<br><br>
-
-      <i class="fa fa-edit icon" onclick="editItem(${it.id})"></i>
-      <i class="fa fa-trash icon" onclick="delItem(${it.id})"></i>
-    </div>`;
-
-    if(it.banner){
-      let im=document.createElement("img");
-      im.src=it.banner.dataURL;
-      im.className="img-prev";
-      c.appendChild(im);
+/*
+  MCQ JSON -> PPTX generator using PptxGenJS
+  - Expected JSON format (either single object or array):
+    {
+      "question": "भारत का राष्ट्रीय पशु कौन है?",
+      "option": ["शेर", "बाघ", "हाथी", "गैंडा"],
+      "answer": "B",
+      "solution": "राष्ट्रीय पशु बाघ है।"
     }
+*/
 
-    box.appendChild(c);
-  });
-}
+const $ = id => document.getElementById(id);
+const jsonArea = $('jsonArea');
+const preview = $('preview');
 
-function delItem(id){
-  items = items.filter(x=>x.id!==id);
-  render();
-}
-
-function editItem(id){
-  let x = items.find(a=>a.id===id);
-  if(!x)return;
-
-  $('cat').value=x.categories;
-  $('state').value=x.states;
-  $('lang').value=x.lang;
-  $('title').value=x.title;
-  $('bodyText').value=x.body;
-
-  delItem(id);
-}
-
-// ---------------- DOCX EXPORT ----------------
-function xmlEsc(s){
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
-
-function imgXML(rId,cx=5000000,cy=3000000){
-return `<w:p>
-<w:r>
-<w:drawing>
-<wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
-<wp:extent cx="${cx}" cy="${cy}"/>
-<wp:docPr id="1" name="img"/>
-<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-<pic:nvPicPr><pic:cNvPr id="0" name="pic"/><pic:cNvPicPr/></pic:nvPicPr>
-<pic:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>
-<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm></pic:spPr>
-</pic:pic>
-</a:graphicData>
-</a:graphic>
-</wp:inline>
-</w:drawing>
-</w:r>
-</w:p>`;
-}
-
-async function exportDocx(){
-  // build DOCX file
-  let media=[], rel=[], body="";
-
-  let idx=1;
-
-  for(let it of items){
-
-    // Hindi block
-    body+=`<w:p><w:r><w:t>###currentAffair</w:t></w:r></w:p>`;
-    body+=`<w:p><w:r><w:t>currentAffair</w:t></w:r></w:p>`;
-
-    body+=`<w:p><w:r><w:t>###categories</w:t></w:r></w:p>`;
-    body+=`<w:p><w:r><w:t>${xmlEsc(it.categories)}</w:t></w:r></w:p>`;
-
-    body+=`<w:p><w:r><w:t>###states</w:t></w:r></w:p>`;
-    body+=`<w:p><w:r><w	t>${xmlEsc(it.states)}</w:t></w:r></w:p>`;
-
-    body+=`<w:p><w:r><w:t>###lang</w:t></w:r></w:p>`;
-    body+=`<w:p><w:r><w:t>hi</w:t></w:r></w:p>`;
-
-    body+=`<w:p><w:r><w:t>###title</w:t></w:r></w:p>`;
-    body+=`<w:p><w:r><w:t>${xmlEsc(it.title)}</w:t></w:r></w:p>`;
-
-    body+=`<w:p><w:r><w:t>###banner</w:t></w	r></w:p>`;
-    body+=`<w:p></w:p>`;
-
-    let imgId=null;
-    if(it.banner){
-      imgId="rId"+idx;
-      let b64=it.banner.dataURL.split(",")[1];
-      media.push({id:imgId,b64});
-      idx++;
-      body+=imgXML(imgId);
-    }
-
-    body+=`<w:p><w:r><w:t>###body</w:t></w:r></w:p>`;
-    body+=`<w:p><w:r><w:t>${xmlEsc(it.body)}</w:t></w:r></w:p>`;
-
-    // EN block
-    body+=`<w:p><w:r><w:t>###currentAffair</w:t></w:r></w:p>`;
-    body+=`<w:p><w:r><w:t>currentAffair</w:t></w:r></w	p>`;
-
-    body+=`<w:p><w:r><w:t>###categories</w:t></w:r></w	p>`;
-    body+=`<w:p><w:r><w:t>${xmlEsc(it.categories)}</w:t></w:r></w	p>`;
-
-    body+=`<w:p><w:r><w:t>###states</w:t></w	r></w:p>`;
-    body+=`<w:p><w:r><w:t>${xmlEsc(it.states)}</w:t></w:r></w	p>`;
-
-    body+=`<w:p><w:r><w:t>###lang</w:t></w:r></w	p>`;
-    body+=`<w:p><w:r><w:t>en</w:t></w:r></w	p>`;
-
-    body+=`<w:p><w:r><w:t>###title</w:t></w:r></w	p>`;
-    body+=`<w:p><w:r><w:t>${xmlEsc(it.enTitle)}</w:t></w:r></w	p>`;
-
-    body+=`<w:p><w:r><w:t>###banner</w:t></w:r></w	p>`;
-    body+=`<w:p></w:p>`;
-    if(imgId) body+=imgXML(imgId);
-
-    body+=`<w:p><w:r><w:t>###body</w:t></w:r></w	p>`;
-    body+=`<w:p><w:r><w:t>${xmlEsc(it.enBody)}</w:t></w:r></w	p>`;
+const defaultSample = [
+  {
+    "question": "भारत का राष्ट्रीय पशु कौन है?",
+    "option": ["शेर", "बाघ", "हाथी", "गैंडा"],
+    "answer": "B",
+    "solution": "राष्ट्रीय पशु बाघ है।"
+  },
+  {
+    "question": "भारत की राजधानी कौन सी है?",
+    "option": ["मुम्बई", "कोलकाता", "जयपुर", "नयी दिल्ली"],
+    "answer": "D",
+    "solution": "नई दिल्ली भारत की राजधानी है।"
   }
+];
 
-  // DOCX package
-  let docXML=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-  <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
-  xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-  <w:body>${body}<w:sectPr/></w:body></w:document>`;
-
-  let rels=`<?xml version="1.0"?>
-  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-  </Relationships>`;
-
-  let docRels=`<?xml version="1.0"?>
-  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  </Relationships>`;
-
-  media.forEach(m=>{
-    docRels = docRels.replace("</Relationships>",
-      `<Relationship Id="${m.id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${m.id}.png"/></Relationships>`
-    );
-  });
-
-  let types=`<?xml version="1.0"?>
-  <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Default Extension="png" ContentType="image/png"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-  </Types>`;
-
-  // ZIP BUILD
-  function str(s){return new TextEncoder().encode(s)}
-  let zip={};
-
-  zip["[Content_Types].xml"]=str(types);
-  zip["_rels/.rels"]=str(rels);
-  zip["word/document.xml"]=str(docXML);
-  zip["word/_rels/document.xml.rels"]=str(docRels);
-
-  media.forEach(m=>{
-    zip[`word/media/${m.id}.png`]=Uint8Array.from(atob(m.b64),c=>c.charCodeAt(0));
-  });
-
-  let blob=makeZip(zip);
-  let url=URL.createObjectURL(blob);
-  let a=document.createElement("a");
-  a.href=url;
-  a.download="current_affairs.docx";
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),2000);
-}
-
-// ZIP MAKER
-function makeZip(files){
-  function u32(n){return [n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255]}
-  function crc32(a){let c=-1;for(let i=0;i<a.length;i++){c=c>>>8^t[(c^a[i])&255]}return(c^-1)>>>0}
-  let t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0}
-  let lf=[],cf=[],offs=0;
-
-  for(let name in files){
-    let data=files[name];
-    let f=str(name);
-    let crc=crc32(data);
-    let cs=data.length,us=data.length;
-
-    let lh=new Uint8Array(30+f.length);
-    lh.set([80,75,3,4,20,0,0,0,0,0],0);
-    lh.set(u32(crc),14);
-    lh.set(u32(cs),18);
-    lh.set(u32(us),22);
-    lh[26]=f.length&255;lh[27]=f.length>>8;
-    lh.set(f,30);
-    lf.push({h:lh,d:data});
-
-    let ch=new Uint8Array(46+f.length);
-    ch.set([80,75,1,2,20,0,20,0],0);
-    ch.set(u32(crc),16);
-    ch.set(u32(cs),20);
-    ch.set	u32(us),24);
-    ch[28]=f.length&255;ch[29]=f.length>>8;
-    ch.set(u32(offs),42);
-    ch.set(f,46);
-    cf.push(ch);
-
-    offs+=lh.length+data.length;
+// Helper: normalize input (single object -> array)
+function parseJsonInput(txt) {
+  if(!txt || !txt.trim()) return [];
+  try{
+    const obj = JSON.parse(txt);
+    if(Array.isArray(obj)) return obj;
+    if(typeof obj === 'object') return [obj];
+    return [];
+  }catch(e){
+    alert('Invalid JSON: ' + e.message);
+    return null;
   }
-
-  let cl=0;cf.forEach(c=>cl+=c.length);
-  let ol=offs+cl+22;
-  let out=new Uint8Array(ol);
-  let p=0;
-  lf.forEach(x=>{out.set(x.h,p);p+=x.h.length;out.set(x.d,p);p+=x.d.length});
-  let cd=p;
-  cf.forEach(c=>{out.set(c,p);p+=c.length});
-  out.set([80,75,5,6,0,0,0,0],p);p+=8;
-  out.set(u32(cf.length),p);p+=2;
-  out.set(u32(cf.length),p);p+=2;
-  out.set(u32(cl),p);p+=4;
-  out.set(u32(cd),p);p+=4;
-  return new Blob([out],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
 }
 
+function renderPreview(dataArr){
+  preview.innerHTML = '';
+  if(!dataArr || dataArr.length===0){
+    preview.innerHTML = '<div class="muted">No items to preview.</div>';
+    return;
+  }
+  dataArr.forEach((q,i)=>{
+    const slide = document.createElement('div');
+    slide.className = 'slide-preview';
+    slide.style.background = '#000';
+    slide.style.color = '#fff';
+    slide.style.padding = '12px';
+    slide.style.borderRadius = '6px';
+    slide.style.marginBottom = '12px';
+    // header: Q number + question
+    const qTitle = document.createElement('div');
+    qTitle.className = 'slide-question';
+    qTitle.style.fontWeight = 800;
+    qTitle.style.fontSize = '16px';
+    qTitle.textContent = `Q${i+1}. ${q.question||''}`;
+    slide.appendChild(qTitle);
+    // options
+    const ol = document.createElement('div');
+    (q.option||[]).forEach((opt, idx)=>{
+      const optDiv = document.createElement('div');
+      optDiv.className = 'slide-option';
+      optDiv.style.marginLeft = '8px';
+      optDiv.style.marginBottom = '6px';
+      optDiv.style.fontSize = '14px';
+      optDiv.textContent = `${idx+1}. ${opt||''}`;
+      slide.appendChild(optDiv);
+    });
+    preview.appendChild(slide);
+  });
+}
+
+/* UI Buttons */
+$('loadSample').addEventListener('click', ()=> {
+  jsonArea.value = JSON.stringify(defaultSample, null, 2);
+});
+
+$('jsonFile').addEventListener('change', async (ev)=> {
+  const f = ev.target.files[0];
+  if(!f) return;
+  const txt = await f.text();
+  jsonArea.value = txt;
+});
+
+$('importBtn').addEventListener('click', ()=> {
+  const txt = jsonArea.value;
+  const parsed = parseJsonInput(txt);
+  if(parsed === null) return;
+  // sanitize: ensure options array length 4, convert /n or \\n to newline
+  const normalized = parsed.map(item => {
+    const opts = Array.isArray(item.option) ? item.option.slice(0,4) : [
+      item.optA, item.optB, item.optC, item.optD
+    ].map(x => x==null ? '' : String(x));
+    while(opts.length < 4) opts.push('');
+    return {
+      question: String(item.question || item.q || '').replace(/\\n/g,'\n').replace(/\/n/g,'\n'),
+      option: opts.map(o => String(o).replace(/\\n/g,'\n').replace(/\/n/g,'\n')),
+      answer: item.answer || item.ans || '',
+      solution: item.solution || item.solution || ''
+    };
+  });
+  // store normalized JSON back to textarea (so user can edit)
+  jsonArea.value = JSON.stringify(normalized, null, 2);
+  renderPreview(normalized);
+  // Store on window for generation
+  window._mcqData = normalized;
+});
+
+/* Export JSON (download) */
+$('downloadJsonBtn').addEventListener('click', ()=>{
+  const txt = jsonArea.value || '[]';
+  try{
+    JSON.parse(txt); // validate
+  }catch(e){ alert('Invalid JSON cannot export'); return; }
+  const blob = new Blob([txt], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'mcq_export.json'; a.click();
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+});
+
+/* Clear */
+$('clearBtn').addEventListener('click', ()=>{
+  if(!confirm('सिर्फ JSON और preview clear करना है?')) return;
+  jsonArea.value = '';
+  preview.innerHTML = '<div class="muted">Preview दिखाई देगा यहाँ — Import दबाओ।</div>';
+  window._mcqData = [];
+});
+
+/* Help */
+$('helpBtn').addEventListener('click', ()=>{
+  alert('Use: Paste या upload JSON → Import & Preview → Generate PPTX.\nJSON format: Array of objects with fields: question (string), option (array of 4 strings), answer (optional), solution (optional).');
+});
+
+/* Generate PPTX */
+$('generateBtn').addEventListener('click', async ()=>{
+  const data = window._mcqData || parseJsonInput(jsonArea.value) || [];
+  if(data === null) return;
+  if(!data.length){ alert('कोई प्रश्न नहीं मिला — पहले Import करो या JSON डालो'); return; }
+
+  try{
+    // Create presentation
+    const pptx = new PptxGenJS();
+
+    // Global slide size optional (default 10 x 5.625 inches)
+    // We'll use default, but configure placements in inches.
+    // Styling constants
+    const bgColor = '000000'; // black
+    const questionColor = 'FFFFFF';
+    const optionColor = 'FFFFFF';
+
+    // Loop through questions and add slides
+    data.forEach((q, idx) => {
+      const slide = pptx.addSlide();
+      // set black background
+      slide.background = { color: bgColor };
+
+      // Positioning (inches)
+      // Question area top y = 0.6; left x = 0.6; width = 8.0
+      const qX = 0.6;
+      let qY = 0.5;
+      const qW = 8.0;
+
+      // Add question text bold (larger)
+      const questionText = `Q${idx+1}. ${q.question || ''}`;
+      slide.addText(questionText, {
+        x: qX, y: qY, w: qW, h: 1.2,
+        color: questionColor, fontSize: 28, bold: true, align: 'left', valign: 'top',
+        margin: 0.0
+      });
+
+      // Options: list vertically with spacing
+      let optY = qY + 1.2; // start below question
+      const optX = 0.9; // left margin a bit more
+      const optW = 8.0;
+      const optFont = 22;
+
+      const opts = q.option || [];
+      for(let i=0;i<opts.length;i++){
+        const line = `${i+1}. ${opts[i] || ''}`;
+        slide.addText(line, {
+          x: optX, y: optY, w: optW, h: 0.6,
+          color: optionColor, fontSize: optFont, bold: false, align: 'left', valign: 'top',
+          margin: 0.0
+        });
+        optY += 0.7; // vertical spacing between options
+      }
+
+      // (Optional) You can add small footer number on slide corner
+      slide.addText(`Q${idx+1}`, { x:9.1, y:5.2, color:'666666', fontSize:12, align:'right' });
+    });
+
+    // Save / download
+    const filename = 'mcq_slides';
+    await pptx.writeFile({ fileName: `${filename}.pptx` });
+    // Note: writeFile triggers download in browser
+
+  }catch(err){
+    console.error(err);
+    alert('PPTX generation failed: ' + err);
+  }
+});
+
+/* On load: put sample */
+jsonArea.value = JSON.stringify(defaultSample, null, 2);
+window._mcqData = defaultSample;
+renderPreview(defaultSample);
 </script>
 </body>
 </html>
